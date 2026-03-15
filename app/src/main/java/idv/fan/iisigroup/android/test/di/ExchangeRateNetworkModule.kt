@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import idv.fan.iisigroup.android.test.BuildConfig
+import idv.fan.iisigroup.android.test.FlipperInitializer.addFlipperNetworkInterceptor
 import idv.fan.iisigroup.android.test.data.remote.api.ExchangeRateApiService
 import idv.fan.iisigroup.android.test.network.ApiKeyInterceptor
 import okhttp3.OkHttpClient
@@ -36,6 +37,7 @@ object ExchangeRateNetworkModule {
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
+            .addFlipperNetworkInterceptor()
             .build()
 
     @Provides

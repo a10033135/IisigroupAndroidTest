@@ -94,4 +94,7 @@ dependencies {
     add("kspAndroidTest", libs.hilt.android.compiler)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.flipper)
+    debugImplementation(libs.flipper.network.plugin)
+    debugImplementation(libs.soloader)
 }
