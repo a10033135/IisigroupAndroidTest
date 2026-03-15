@@ -27,6 +27,7 @@ fun SettingRoute(
             onDarkThemeChange = viewModel::setDarkTheme,
             onAutoSyncChange = viewModel::setAutoSyncEnabled,
             onAutoSyncIntervalChange = viewModel::setAutoSyncInterval,
+            onDefaultCurrencyChange = viewModel::setDefaultCurrency,
             contentPadding = innerPadding,
         )
     }

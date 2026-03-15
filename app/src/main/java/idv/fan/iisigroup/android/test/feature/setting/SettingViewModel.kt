@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import idv.fan.iisigroup.android.test.BuildConfig
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
+import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.SyncInterval
 import idv.fan.iisigroup.android.test.ui.state.SettingUiState
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,12 +24,14 @@ class SettingViewModel @Inject constructor(
         userPreferencesDataStore.isDarkTheme,
         userPreferencesDataStore.autoSyncEnabled,
         userPreferencesDataStore.autoSyncIntervalMs,
-    ) { isDark, autoSync, intervalMs ->
+        userPreferencesDataStore.defaultCurrencyCode,
+    ) { isDark, autoSync, intervalMs, currencyCode ->
         SettingUiState(
             appVersion = BuildConfig.VERSION_NAME,
             isDarkTheme = isDark,
             autoSyncEnabled = autoSync,
             autoSyncInterval = SyncInterval.fromMs(intervalMs),
+            defaultCurrency = Currency.entries.find { it.code == currencyCode } ?: Currency.TWD,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingUiState())
 
@@ -42,5 +45,9 @@ class SettingViewModel @Inject constructor(
 
     fun setAutoSyncInterval(interval: SyncInterval) {
         viewModelScope.launch { userPreferencesDataStore.setAutoSyncIntervalMs(interval.ms) }
+    }
+
+    fun setDefaultCurrency(currency: Currency) {
+        viewModelScope.launch { userPreferencesDataStore.setDefaultCurrencyCode(currency.code) }
     }
 }

@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalTime
@@ -40,7 +42,14 @@ class ExchangeRateViewModel @Inject constructor(
 
     init {
         observeAutoSyncSettings()
-        loadRates()
+        viewModelScope.launch {
+            // 讀取持久化的預設貨幣作為初始值
+            val savedCode = userPreferencesDataStore.defaultCurrencyCode.first()
+            currentBaseCurrency = Currency.entries.find { it.code == savedCode } ?: Currency.TWD
+            loadRates()
+            // 初始值讀完後，觀察後續設定變更
+            observeDefaultCurrencyChanges()
+        }
     }
 
     private fun observeAutoSyncSettings() {
@@ -57,6 +66,18 @@ class ExchangeRateViewModel @Inject constructor(
                         refreshJob?.cancel()
                         if (enabled) startAutoRefresh()
                     }
+                }
+        }
+    }
+
+    private fun observeDefaultCurrencyChanges() {
+        viewModelScope.launch {
+            userPreferencesDataStore.defaultCurrencyCode
+                .drop(1) // 跳過初始值（已在 init 讀取）
+                .collect { code ->
+                    val currency = Currency.entries.find { it.code == code } ?: Currency.TWD
+                    currentBaseCurrency = currency
+                    loadRates()
                 }
         }
     }
