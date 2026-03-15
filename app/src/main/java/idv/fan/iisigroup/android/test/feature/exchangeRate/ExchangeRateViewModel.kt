@@ -26,7 +26,7 @@ class ExchangeRateViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ExchangeRateUiState>(ExchangeRateUiState.Loading)
     val uiState: StateFlow<ExchangeRateUiState> = _uiState.asStateFlow()
 
-    private var currentBaseCurrency: Currency = Currency.TWD
+    private var currentBaseCurrency: Currency = Currency.CNY
     private var loadJob: Job? = null
     private var refreshJob: Job? = null
 

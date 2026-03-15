@@ -27,14 +27,14 @@ android {
         debug {
             buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
             buildConfigField("String", "EXCHANGE_RATE_BASE_URL", "\"https://api.freecurrencyapi.com/v1/\"")
-            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"fca_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"")
+            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"fca_live_iG1uxn9wgTllfRilqJbwrkQzYj9gYfCUbCvOGjda\"")
         }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
             buildConfigField("String", "EXCHANGE_RATE_BASE_URL", "\"https://api.freecurrencyapi.com/v1/\"")
-            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"fca_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"")
+            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"fca_live_iG1uxn9wgTllfRilqJbwrkQzYj9gYfCUbCvOGjda\"")
         }
     }
     compileOptions {

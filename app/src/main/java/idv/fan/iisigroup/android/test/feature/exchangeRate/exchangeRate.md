@@ -10,7 +10,7 @@
         - Loading：畫面空白，以 Shimmer 顯示讀取狀態
         - Success：
             - LoadingProgress 消失顯示貨幣代碼及匯率，成功後需每十秒需刷新一次，每十秒刷新時需在畫面顯示 LoadingProgress 文字撰寫刷新中，刷新失敗時在頁面最上方，有個獨立區塊顯示錯誤訊息，但不進入錯誤畫面
-            - Empty 需顯示目前無任何航班資訊
+            - Empty 需顯示目前無任何匯率資訊
             - 橫向轉為一行兩列
             - 下拉可以打 API 即時刷新資訊
         - Failed：
