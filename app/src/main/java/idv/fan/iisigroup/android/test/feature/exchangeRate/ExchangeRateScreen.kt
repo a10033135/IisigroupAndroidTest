@@ -32,8 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.ExchangeRate
 import idv.fan.iisigroup.android.test.ui.components.ExchangeRateShimmerContent
@@ -87,14 +89,13 @@ fun ExchangeRateScreen(
     }
 }
 
-// 更新資訊區塊
 @Composable
 private fun ExchangeRateUpdateInfoSection(
     uiState: ExchangeRateUiState,
     onBaseCurrencyClick: () -> Unit,
 ) {
     when (uiState) {
-        is ExchangeRateUiState.Loading -> ExchangeRateInfoText("尚未取得資料")
+        is ExchangeRateUiState.Loading -> ExchangeRateInfoText(stringResource(R.string.common_no_data))
         is ExchangeRateUiState.Error -> ExchangeRateInfoError(uiState.message)
         is ExchangeRateUiState.Success -> when {
             uiState.isRefreshing -> ExchangeRateRefreshingBanner()
@@ -123,7 +124,7 @@ private fun ExchangeRateRefreshingBanner() {
     Column(modifier = Modifier.fillMaxWidth()) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         Text(
-            text = "刷新中",
+            text = stringResource(R.string.common_refreshing),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
@@ -160,27 +161,26 @@ private fun ExchangeRateSuccessInfo(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = "最後更新：$lastRefreshTime",
+            text = stringResource(R.string.common_last_update, lastRefreshTime),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "基準：${baseCurrency.code}",
+                text = stringResource(R.string.exchange_rate_base, baseCurrency.code),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
             )
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "切換貨幣",
+                contentDescription = stringResource(R.string.exchange_rate_switch_currency),
                 tint = MaterialTheme.colorScheme.primary,
             )
         }
     }
 }
 
-// 內容區塊（Success）
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExchangeRateSuccessContent(
@@ -199,7 +199,7 @@ private fun ExchangeRateSuccessContent(
         if (uiState.rates.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "目前無任何匯率資訊",
+                    text = stringResource(R.string.exchange_rate_empty),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -223,7 +223,6 @@ private fun ExchangeRateSuccessContent(
     }
 }
 
-// 內容區塊（Error）
 @Composable
 private fun ExchangeRateErrorContent(
     message: String,
@@ -241,7 +240,7 @@ private fun ExchangeRateErrorContent(
             color = MaterialTheme.colorScheme.error,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) { Text("重新嘗試") }
+        Button(onClick = onRetry) { Text(stringResource(R.string.common_retry)) }
     }
 }
 
@@ -270,7 +269,7 @@ private fun ExchangeRateItem(
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = "/ 1 ${baseCurrency.code}",
+                    text = stringResource(R.string.exchange_rate_per, baseCurrency.code),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -287,7 +286,7 @@ private fun CurrencyPickerDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("選擇基準貨幣") },
+        title = { Text(stringResource(R.string.exchange_rate_picker_title)) },
         text = {
             Column {
                 Currency.entries.forEach { currency ->
@@ -315,7 +314,7 @@ private fun CurrencyPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
 }

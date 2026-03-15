@@ -33,8 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.domain.model.Flight
 import idv.fan.iisigroup.android.test.ui.components.FlightShimmerContent
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
@@ -93,12 +95,12 @@ fun FlightScreen(
 @Composable
 private fun FlightUpdateInfoSection(uiState: FlightUiState) {
     when (uiState) {
-        is FlightUiState.Loading -> FlightUpdateInfoText("尚未取得資料")
+        is FlightUiState.Loading -> FlightUpdateInfoText(stringResource(R.string.common_no_data))
         is FlightUiState.Error -> FlightUpdateInfoError(uiState.message)
         is FlightUiState.Success -> when {
             uiState.isRefreshing -> FlightRefreshingBanner()
             uiState.refreshError != null -> FlightUpdateInfoError(uiState.refreshError)
-            else -> FlightUpdateInfoText("最後更新：${uiState.lastRefreshTime}")
+            else -> FlightUpdateInfoText(stringResource(R.string.common_last_update, uiState.lastRefreshTime))
         }
     }
 }
@@ -118,7 +120,7 @@ private fun FlightRefreshingBanner() {
     Column(modifier = Modifier.fillMaxWidth()) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         Text(
-            text = "刷新中",
+            text = stringResource(R.string.common_refreshing),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
@@ -157,10 +159,16 @@ private fun FlightFilterSection(
             FilterChip(
                 selected = filter in selectedFilters,
                 onClick = { onFilterToggle(filter) },
-                label = { Text(filter.label) },
+                label = { Text(filter.toLabel()) },
             )
         }
     }
+}
+
+@Composable
+private fun FlightFilterOption.toLabel(): String = when (this) {
+    is FlightFilterOption.Arrived -> stringResource(R.string.flight_filter_arrived)
+    is FlightFilterOption.Region -> airportName
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,7 +191,7 @@ private fun FlightSuccessContent(
         if (flights.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "目前無任何航班資訊",
+                    text = stringResource(R.string.flight_empty),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -224,7 +232,7 @@ private fun FlightErrorContent(
             color = MaterialTheme.colorScheme.error,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) { Text("重新嘗試") }
+        Button(onClick = onRetry) { Text(stringResource(R.string.common_retry)) }
     }
 }
 
@@ -260,15 +268,24 @@ private fun FlightListItem(
                 )
                 Row {
                     flight.expectTime?.let {
-                        Text(text = "預計: $it", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            text = stringResource(R.string.flight_expect_time, it),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                     flight.realTime?.let {
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "實際: $it", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            text = stringResource(R.string.flight_actual_time, it),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
                 flight.airBoardingGate?.takeIf { it.isNotEmpty() }?.let {
-                    Text(text = "登機門: $it", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = stringResource(R.string.flight_boarding_gate, it),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
             FlightStatusChip(status = flight.airFlyStatus)

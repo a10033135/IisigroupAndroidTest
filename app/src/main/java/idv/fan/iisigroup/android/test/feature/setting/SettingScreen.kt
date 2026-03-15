@@ -27,8 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.SyncInterval
 import idv.fan.iisigroup.android.test.ui.state.SettingUiState
@@ -89,7 +91,7 @@ fun SettingScreen(
 @Composable
 private fun SettingVersionItem(appVersion: String) {
     ListItem(
-        headlineContent = { Text("版本號碼") },
+        headlineContent = { Text(stringResource(R.string.setting_version)) },
         trailingContent = {
             Text(
                 text = appVersion,
@@ -106,7 +108,7 @@ private fun SettingDarkModeItem(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text("暗黑模式") },
+        headlineContent = { Text(stringResource(R.string.setting_dark_mode)) },
         trailingContent = {
             Switch(
                 checked = isDarkTheme,
@@ -122,8 +124,8 @@ private fun SettingAutoSyncItem(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text("自動同步") },
-        supportingContent = { Text("自動同步匯率及航班資料") },
+        headlineContent = { Text(stringResource(R.string.setting_auto_sync)) },
+        supportingContent = { Text(stringResource(R.string.setting_auto_sync_desc)) },
         trailingContent = {
             Switch(
                 checked = autoSyncEnabled,
@@ -139,7 +141,7 @@ private fun SettingAutoSyncIntervalItem(
     onSelected: (SyncInterval) -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text("同步間隔") },
+        headlineContent = { Text(stringResource(R.string.setting_sync_interval)) },
         supportingContent = {
             Row(
                 modifier = Modifier
@@ -151,7 +153,7 @@ private fun SettingAutoSyncIntervalItem(
                     FilterChip(
                         selected = interval == selected,
                         onClick = { onSelected(interval) },
-                        label = { Text(interval.label) },
+                        label = { Text(interval.toLabel()) },
                     )
                 }
             }
@@ -160,17 +162,22 @@ private fun SettingAutoSyncIntervalItem(
 }
 
 @Composable
+private fun SyncInterval.toLabel(): String = when (this) {
+    SyncInterval.TEN_SECONDS -> stringResource(R.string.sync_interval_10s)
+    SyncInterval.ONE_MINUTE -> stringResource(R.string.sync_interval_1m)
+    SyncInterval.FIVE_MINUTES -> stringResource(R.string.sync_interval_5m)
+}
+
+@Composable
 private fun SettingDefaultCurrencyItem(
     currency: Currency,
     onClick: () -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text("預設貨幣") },
-        supportingContent = { Text("匯率頁面的預設基準貨幣") },
+        headlineContent = { Text(stringResource(R.string.setting_default_currency)) },
+        supportingContent = { Text(stringResource(R.string.setting_default_currency_desc)) },
         trailingContent = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = currency.code,
                     style = MaterialTheme.typography.bodyMedium,
@@ -179,7 +186,7 @@ private fun SettingDefaultCurrencyItem(
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "選擇貨幣",
+                    contentDescription = stringResource(R.string.setting_currency_select_desc),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -196,7 +203,7 @@ private fun SettingCurrencyPickerDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("選擇預設貨幣") },
+        title = { Text(stringResource(R.string.setting_currency_picker_title)) },
         text = {
             Column {
                 Currency.entries.forEach { currency ->
@@ -224,7 +231,7 @@ private fun SettingCurrencyPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
 }
