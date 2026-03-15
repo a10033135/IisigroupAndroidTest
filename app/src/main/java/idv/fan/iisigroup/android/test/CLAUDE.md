@@ -1,6 +1,6 @@
 ### 專案說明
 - 語言：Kotlin / Compose 
-- 本地儲存：DataStore 
+- 本地儲存：DataStore，預設值建立於 Constants 物件內統一管理
 - 注入：Hilt
 - 異步：coroutine
 
@@ -21,6 +21,7 @@
 - 採用 Material Design 3，優先使用 ut.theme 
 - 將使用到的顏色及文字大小等設計元素，抽出在 ui.theme ，不在頁面直接寫死參數
 - 請盡量將元件抽出至 ui/components 之中，ComposeFunction 不要超過300行
+- 請將文字抽出放置於 resource/strings
 
 ### MVVM 原則
 - ViewModel 只透過 StateFlow 暴露 UI state

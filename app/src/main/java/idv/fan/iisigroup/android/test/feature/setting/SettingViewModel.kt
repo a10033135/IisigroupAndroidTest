@@ -31,7 +31,7 @@ class SettingViewModel @Inject constructor(
             isDarkTheme = isDark,
             autoSyncEnabled = autoSync,
             autoSyncInterval = SyncInterval.fromMs(intervalMs),
-            defaultCurrency = Currency.entries.find { it.code == currencyCode } ?: Currency.TWD,
+            defaultCurrency = Currency.entries.find { it.code == currencyCode } ?: Currency.USD,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingUiState())
 

@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import idv.fan.iisigroup.android.test.R
 
 private val buttonRows = listOf(
-    listOf("1", "2", "3", "×"),
-    listOf("4", "5", "6", "÷"),
+    listOf("1", "2", "3", "x"),
+    listOf("4", "5", "6", "/"),
     listOf("7", "8", "9", "-"),
     listOf("0", ".", "c", "+"),
 )
@@ -171,10 +171,9 @@ private fun handleCalculatorInput(
                 onResultChange("")
             }
         }
-        in listOf("×", "÷", "+", "-") -> {
+        in listOf("x", "/", "+", "-") -> {
             val op = when (label) {
-                "×" -> "*"
-                "÷" -> "/"
+                "x" -> "*"
                 else -> label
             }
             val base = if (result.isNotEmpty() && expression.isEmpty()) result else expression

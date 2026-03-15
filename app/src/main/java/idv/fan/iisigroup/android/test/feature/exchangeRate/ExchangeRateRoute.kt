@@ -1,7 +1,7 @@
 package idv.fan.iisigroup.android.test.feature.exchangeRate
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -31,7 +31,7 @@ fun ExchangeRateRoute(
             if (uiState is ExchangeRateUiState.Success) {
                 FloatingActionButton(onClick = viewModel::onCalculatorOpen) {
                     Icon(
-                        imageVector = Icons.Default.Calculate,
+                        imageVector = Icons.Default.Create,
                         contentDescription = stringResource(R.string.exchange_rate_calculator),
                     )
                 }
