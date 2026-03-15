@@ -3,7 +3,9 @@ package idv.fan.iisigroup.android.test.feature.flight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
 import idv.fan.iisigroup.android.test.domain.model.Flight
+import idv.fan.iisigroup.android.test.domain.model.SyncInterval
 import idv.fan.iisigroup.android.test.domain.usecase.GetFlightsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalTime
@@ -24,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FlightViewModel @Inject constructor(
     private val getFlightsUseCase: GetFlightsUseCase,
+    private val userPreferencesDataStore: UserPreferencesDataStore,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<FlightUiState>(FlightUiState.Loading)
@@ -35,11 +39,33 @@ class FlightViewModel @Inject constructor(
     private var allFlights: List<Flight> = emptyList()
     private var currentFilters: Set<FlightFilterOption> = emptySet()
 
+    private var currentAutoSyncEnabled: Boolean = true
+    private var currentAutoSyncIntervalMs: Long = SyncInterval.default.ms
+
     private var loadJob: Job? = null
     private var refreshJob: Job? = null
 
     init {
+        observeAutoSyncSettings()
         loadFlights()
+    }
+
+    private fun observeAutoSyncSettings() {
+        viewModelScope.launch {
+            combine(
+                userPreferencesDataStore.autoSyncEnabled,
+                userPreferencesDataStore.autoSyncIntervalMs,
+            ) { enabled, intervalMs -> enabled to intervalMs }
+                .collect { (enabled, intervalMs) ->
+                    val changed = enabled != currentAutoSyncEnabled || intervalMs != currentAutoSyncIntervalMs
+                    currentAutoSyncEnabled = enabled
+                    currentAutoSyncIntervalMs = intervalMs
+                    if (changed && _uiState.value is FlightUiState.Success) {
+                        refreshJob?.cancel()
+                        if (enabled) startAutoRefresh()
+                    }
+                }
+        }
     }
 
     fun loadFlights() {
@@ -54,7 +80,7 @@ class FlightViewModel @Inject constructor(
                     Timber.d("Loaded ${result.data.size} flights")
                     allFlights = result.data
                     _uiState.value = buildSuccessState(currentTime())
-                    startAutoRefresh()
+                    if (currentAutoSyncEnabled) startAutoRefresh()
                 }
                 is ApiResult.Error -> {
                     Timber.e("Load failed: ${result.message}")
@@ -73,14 +99,14 @@ class FlightViewModel @Inject constructor(
                 is ApiResult.Success -> {
                     allFlights = result.data
                     _uiState.value = buildSuccessState(currentTime())
-                    startAutoRefresh()
+                    if (currentAutoSyncEnabled) startAutoRefresh()
                 }
                 is ApiResult.Error -> {
                     _uiState.value = current.copy(
                         isRefreshing = false,
                         refreshError = result.message,
                     )
-                    startAutoRefresh()
+                    if (currentAutoSyncEnabled) startAutoRefresh()
                 }
             }
         }
@@ -108,7 +134,7 @@ class FlightViewModel @Inject constructor(
     private fun startAutoRefresh() {
         refreshJob = viewModelScope.launch {
             while (true) {
-                delay(REFRESH_INTERVAL_MS)
+                delay(currentAutoSyncIntervalMs)
                 val current = _uiState.value as? FlightUiState.Success ?: break
                 Timber.d("Auto-refreshing flights")
                 _uiState.value = current.copy(isRefreshing = true, refreshError = null)
@@ -159,8 +185,4 @@ class FlightViewModel @Inject constructor(
 
     private fun currentTime(): String =
         LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
-
-    companion object {
-        const val REFRESH_INTERVAL_MS = 10_000L
-    }
 }
