@@ -6,6 +6,11 @@
     - Loading：尚未取得資料
     - Success：顯示最後一次刷新時間
     - Failed：錯誤資訊
+  - 篩選器：
+    - 提供 Label Filters 給使用者多選篩選，沒有選擇代表不篩選-全部顯示
+    - 分為
+      - 「抵達」：篩選出 airFlyStatus = 抵達
+      - 地區列表：將所有 Response 中 upAirportName 列出
   - 內容
     - Loading：畫面空白，以 Shimmer 顯示讀取狀態
     - Success：
@@ -13,11 +18,13 @@
       - Empty 需顯示目前無任何航班資訊
       - 橫向轉為一行兩列
       - 下拉可以打 API 即時刷新資訊
+      - 點擊項目即開啟外開瀏覽器至 airLineUrl ，若沒有網址則顯示 Toast ：「此航班沒有提供連結」
     - Failed：
       - API 錯誤時顯示錯誤訊息及重新嘗試的按鈕
 
 ### API 說明
-- API 串接：@GET https://www.kia.gov.tw/API/InstantSchedule.ashx?AirFlyLine=2&AirFlyIO=2
+- API 串接： https://www.kia.gov.tw/API/InstantSchedule.ashx?AirFlyLine=2&AirFlyIO=2
+- 此連結為 HTML 連結，實際 Response 需要倚靠導轉才能取得，因此需分析 HTML 導轉取得實際 JSON 連結
 - 請為此建立獨立的 Retrofit API Interface ，並將 BASE_URL 抽出至環境變數之中，需要分為 Production / Dev 環境
 - API Request
 

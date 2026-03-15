@@ -1,6 +1,10 @@
 package idv.fan.iisigroup.android.test.feature.flight
 
+import android.content.res.Configuration
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,22 +16,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import idv.fan.iisigroup.android.test.domain.model.Flight
+import idv.fan.iisigroup.android.test.ui.components.FlightShimmerContent
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
 import idv.fan.iisigroup.android.test.ui.theme.FlightStatusArrived
 import idv.fan.iisigroup.android.test.ui.theme.FlightStatusCancelled
@@ -35,23 +44,40 @@ import idv.fan.iisigroup.android.test.ui.theme.FlightStatusDefault
 import idv.fan.iisigroup.android.test.ui.theme.FlightStatusDelayed
 import idv.fan.iisigroup.android.test.ui.theme.FlightStatusDeparted
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlightScreen(
     uiState: FlightUiState,
     onRetry: () -> Unit,
+    onFilterToggle: (FlightFilterOption) -> Unit,
+    onFlightClick: (Flight) -> Unit,
+    onPullToRefresh: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(contentPadding)) {
-        // 更新資訊區塊
         FlightUpdateInfoSection(uiState = uiState)
 
-        // 內容區塊
+        if (uiState is FlightUiState.Success) {
+            FlightFilterSection(
+                availableFilters = uiState.availableFilters,
+                selectedFilters = uiState.selectedFilters,
+                onFilterToggle = onFilterToggle,
+            )
+        }
+
         Box(modifier = Modifier.weight(1f)) {
             when (uiState) {
-                is FlightUiState.Loading -> FlightLoadingContent(modifier = Modifier.fillMaxSize())
+                is FlightUiState.Loading -> FlightShimmerContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                )
                 is FlightUiState.Success -> FlightSuccessContent(
                     flights = uiState.flights,
+                    isRefreshing = uiState.isRefreshing,
+                    onPullToRefresh = onPullToRefresh,
+                    onFlightClick = onFlightClick,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is FlightUiState.Error -> FlightErrorContent(
@@ -64,19 +90,16 @@ fun FlightScreen(
     }
 }
 
-// 區塊一：更新資訊
 @Composable
 private fun FlightUpdateInfoSection(uiState: FlightUiState) {
     when (uiState) {
-        is FlightUiState.Loading -> FlightUpdateInfoText(text = "尚未取得資料")
-
+        is FlightUiState.Loading -> FlightUpdateInfoText("尚未取得資料")
+        is FlightUiState.Error -> FlightUpdateInfoError(uiState.message)
         is FlightUiState.Success -> when {
             uiState.isRefreshing -> FlightRefreshingBanner()
-            uiState.refreshError != null -> FlightUpdateInfoError(message = uiState.refreshError)
-            else -> FlightUpdateInfoText(text = "最後更新：${uiState.lastRefreshTime}")
+            uiState.refreshError != null -> FlightUpdateInfoError(uiState.refreshError)
+            else -> FlightUpdateInfoText("最後更新：${uiState.lastRefreshTime}")
         }
-
-        is FlightUiState.Error -> FlightUpdateInfoError(message = uiState.message)
     }
 }
 
@@ -117,32 +140,73 @@ private fun FlightUpdateInfoError(message: String) {
     }
 }
 
-// 區塊二（Loading）：空白 + LoadingProgress
 @Composable
-private fun FlightLoadingContent(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
-    }
-}
-
-// 區塊二（Success）：航班列表
-@Composable
-private fun FlightSuccessContent(
-    flights: List<Flight>,
-    modifier: Modifier = Modifier,
+private fun FlightFilterSection(
+    availableFilters: List<FlightFilterOption>,
+    selectedFilters: Set<FlightFilterOption>,
+    onFilterToggle: (FlightFilterOption) -> Unit,
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(flights) { flight ->
-            FlightListItem(flight = flight)
+        availableFilters.forEach { filter ->
+            FilterChip(
+                selected = filter in selectedFilters,
+                onClick = { onFilterToggle(filter) },
+                label = { Text(filter.label) },
+            )
         }
     }
 }
 
-// 區塊二（Failed）：錯誤訊息 + 重新嘗試
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FlightSuccessContent(
+    flights: List<Flight>,
+    isRefreshing: Boolean,
+    onPullToRefresh: () -> Unit,
+    onFlightClick: (Flight) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val columns = if (isLandscape) GridCells.Fixed(2) else GridCells.Fixed(1)
+
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onPullToRefresh,
+        modifier = modifier,
+    ) {
+        if (flights.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "目前無任何航班資訊",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = columns,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(flights) { flight ->
+                    FlightListItem(
+                        flight = flight,
+                        onClick = { onFlightClick(flight) },
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun FlightErrorContent(
     message: String,
@@ -160,15 +224,21 @@ private fun FlightErrorContent(
             color = MaterialTheme.colorScheme.error,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) {
-            Text("重新嘗試")
-        }
+        Button(onClick = onRetry) { Text("重新嘗試") }
     }
 }
 
 @Composable
-private fun FlightListItem(flight: Flight, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth()) {
+private fun FlightListItem(
+    flight: Flight,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+    ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
