@@ -3,6 +3,7 @@ package idv.fan.iisigroup.android.test
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import idv.fan.iisigroup.android.test.core.IssConstants
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     val isDarkTheme: StateFlow<Boolean> = userPreferencesDataStore.isDarkTheme
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), IssConstants.UserPreferences.DEFAULT_DARK_THEME)
 
     fun setDarkTheme(enabled: Boolean) {
         viewModelScope.launch {
