@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -19,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import idv.fan.iisigroup.android.test.feature.exchangeRate.ExchangeRateNav
+import idv.fan.iisigroup.android.test.feature.exchangeRate.exchangeRateNavigation
 import idv.fan.iisigroup.android.test.feature.flight.FlightNav
 import idv.fan.iisigroup.android.test.feature.flight.flightNavigation
 import idv.fan.iisigroup.android.test.ui.theme.IisigroupAndroidTestTheme
@@ -70,6 +73,7 @@ fun IisigroupAndroidTestApp() {
             modifier = Modifier.fillMaxSize(),
         ) {
             flightNavigation()
+            exchangeRateNavigation()
         }
     }
 }
@@ -81,4 +85,5 @@ enum class AppDestinations(
     val routeClass: KClass<*>,
 ) {
     FLIGHT("航班", Icons.Default.List, FlightNav, FlightNav::class),
+    EXCHANGE_RATE("匯率", Icons.Default.Star, ExchangeRateNav, ExchangeRateNav::class),
 }
