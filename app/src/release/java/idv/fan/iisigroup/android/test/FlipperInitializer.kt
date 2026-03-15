@@ -3,9 +3,6 @@ package idv.fan.iisigroup.android.test
 import android.content.Context
 import okhttp3.OkHttpClient
 
-object FlipperInitializer {
+fun initFlipper(context: Context) = Unit
 
-    fun init(context: Context) = Unit
-
-    fun OkHttpClient.Builder.addFlipperNetworkInterceptor(): OkHttpClient.Builder = this
-}
+fun OkHttpClient.Builder.addFlipperNetworkInterceptor(): OkHttpClient.Builder = this

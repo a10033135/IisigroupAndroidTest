@@ -4,7 +4,6 @@
 - 注入：Hilt
 - 異步：coroutine
 
-
 ### 專案架構
 - 採 CleanArchitecture
 - MVVM 遵守單向資料流，由 StateFlow 掌握畫面狀態，由 SharedFlow 掌握發送事件
@@ -32,6 +31,12 @@
 - 為 MainActivity 的 NavigationSuiteScaffold 實作 NavHost 
 - 將各頁面的 Routing 抽出為 ***Navigation ，並將頁面 Route 使用最新的
 - 將 routing 拆成 ***Route(將Screen及ViewModel整合) ***Screen(純UI)
+
+### Debug Tool
+- Flipper：
+  - 支援 Network 監測
+  - 透過 package 建立 production / debug 的 initFlipper function，根據 build variant 在 Debug 時才會 init
+- Timber：Logger 
 
 ### 指令原則
 - 每次使用 CLAUDE 處理後需拆解 Commit 並自動進 Commit

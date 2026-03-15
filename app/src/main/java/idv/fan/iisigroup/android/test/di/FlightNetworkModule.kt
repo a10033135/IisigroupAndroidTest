@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import idv.fan.iisigroup.android.test.BuildConfig
-import idv.fan.iisigroup.android.test.FlipperInitializer.addFlipperNetworkInterceptor
+import idv.fan.iisigroup.android.test.addFlipperNetworkInterceptor
 import idv.fan.iisigroup.android.test.data.remote.api.FlightApiService
 import idv.fan.iisigroup.android.test.network.FlightJsRedirectInterceptor
 import okhttp3.OkHttpClient
