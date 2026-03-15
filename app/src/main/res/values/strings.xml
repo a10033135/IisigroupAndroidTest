@@ -29,6 +29,9 @@
     <string name="exchange_rate_base">基準：%s</string>
     <string name="exchange_rate_per">/ 1 %s</string>
     <string name="exchange_rate_picker_title">選擇基準貨幣</string>
+    <string name="exchange_rate_calculator">計算機</string>
+    <string name="exchange_rate_calculator_input">輸入</string>
+    <string name="exchange_rate_amount">金額：%s</string>
 
     <!-- Setting -->
     <string name="title_setting">設定頁面</string>

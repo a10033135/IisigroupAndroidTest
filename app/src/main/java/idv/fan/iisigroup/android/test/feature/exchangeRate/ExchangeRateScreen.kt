@@ -53,6 +53,7 @@ fun ExchangeRateScreen(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
 ) {
+    val calculatorAmount = (uiState as? ExchangeRateUiState.Success)?.calculatorAmount ?: 1.0
     Column(modifier = modifier.padding(contentPadding)) {
         ExchangeRateUpdateInfoSection(
             uiState = uiState,
@@ -68,6 +69,7 @@ fun ExchangeRateScreen(
                 )
                 is ExchangeRateUiState.Success -> ExchangeRateSuccessContent(
                     uiState = uiState,
+                    calculatorAmount = calculatorAmount,
                     onPullToRefresh = onPullToRefresh,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -185,6 +187,7 @@ private fun ExchangeRateSuccessInfo(
 @Composable
 private fun ExchangeRateSuccessContent(
     uiState: ExchangeRateUiState.Success,
+    calculatorAmount: Double,
     onPullToRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -216,6 +219,7 @@ private fun ExchangeRateSuccessContent(
                     ExchangeRateItem(
                         rate = rate,
                         baseCurrency = uiState.baseCurrency,
+                        calculatorAmount = calculatorAmount,
                     )
                 }
             }
@@ -248,8 +252,10 @@ private fun ExchangeRateErrorContent(
 private fun ExchangeRateItem(
     rate: ExchangeRate,
     baseCurrency: Currency,
+    calculatorAmount: Double,
     modifier: Modifier = Modifier,
 ) {
+    val displayValue = rate.rate * calculatorAmount
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -265,11 +271,15 @@ private fun ExchangeRateItem(
             )
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "%.4f".format(rate.rate),
+                    text = "%.4f".format(displayValue),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = stringResource(R.string.exchange_rate_per, baseCurrency.code),
+                    text = if (calculatorAmount == 1.0) {
+                        stringResource(R.string.exchange_rate_per, baseCurrency.code)
+                    } else {
+                        stringResource(R.string.exchange_rate_amount, "%.4f".format(calculatorAmount).trimEnd('0').trimEnd('.'))
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

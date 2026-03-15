@@ -12,6 +12,8 @@ sealed class ExchangeRateUiState {
         val showCurrencyPicker: Boolean = false,
         val isRefreshing: Boolean = false,
         val refreshError: String? = null,
+        val showCalculator: Boolean = false,
+        val calculatorAmount: Double = 1.0,
     ) : ExchangeRateUiState()
     data class Error(val message: String) : ExchangeRateUiState()
 }

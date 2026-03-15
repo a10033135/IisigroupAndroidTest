@@ -31,7 +31,7 @@ class ExchangeRateViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ExchangeRateUiState>(ExchangeRateUiState.Loading)
     val uiState: StateFlow<ExchangeRateUiState> = _uiState.asStateFlow()
 
-    private var currentBaseCurrency: Currency = Currency.TWD
+    private var currentBaseCurrency: Currency = Currency.USD
 
     private var currentAutoSyncEnabled: Boolean = true
     private var currentAutoSyncIntervalMs: Long = SyncInterval.default.ms
@@ -65,7 +65,7 @@ class ExchangeRateViewModel @Inject constructor(
     private fun observeDefaultCurrency() {
         viewModelScope.launch {
             userPreferencesDataStore.defaultCurrencyCode
-                .map { code -> Currency.entries.find { it.code == code } ?: Currency.TWD }
+                .map { code -> Currency.entries.find { it.code == code } ?: Currency.USD }
                 .collect { currency ->
                     currentBaseCurrency = currency
                     loadRates()
@@ -130,6 +130,21 @@ class ExchangeRateViewModel @Inject constructor(
     fun onCurrencyPickerDismiss() {
         val current = _uiState.value as? ExchangeRateUiState.Success ?: return
         _uiState.value = current.copy(showCurrencyPicker = false)
+    }
+
+    fun onCalculatorOpen() {
+        val current = _uiState.value as? ExchangeRateUiState.Success ?: return
+        _uiState.value = current.copy(showCalculator = true)
+    }
+
+    fun onCalculatorDismiss() {
+        val current = _uiState.value as? ExchangeRateUiState.Success ?: return
+        _uiState.value = current.copy(showCalculator = false)
+    }
+
+    fun onCalculatorConfirm(amount: Double) {
+        val current = _uiState.value as? ExchangeRateUiState.Success ?: return
+        _uiState.value = current.copy(showCalculator = false, calculatorAmount = amount)
     }
 
     fun onBaseCurrencySelected(currency: Currency) {
