@@ -39,15 +39,22 @@ import idv.fan.iisigroup.android.test.ui.theme.FlightStatusDeparted
 fun FlightScreen(
     uiState: FlightUiState,
     onRetry: () -> Unit,
+    contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
 ) {
     when (uiState) {
-        is FlightUiState.Loading -> FlightLoadingContent(modifier = modifier.fillMaxSize())
-        is FlightUiState.Success -> FlightSuccessContent(uiState = uiState, modifier = modifier.fillMaxSize())
+        is FlightUiState.Loading -> FlightLoadingContent(
+            modifier = modifier.fillMaxSize().padding(contentPadding),
+        )
+        is FlightUiState.Success -> FlightSuccessContent(
+            uiState = uiState,
+            contentPadding = contentPadding,
+            modifier = modifier.fillMaxSize(),
+        )
         is FlightUiState.Error -> FlightErrorContent(
             message = uiState.message,
             onRetry = onRetry,
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize().padding(contentPadding),
         )
     }
 }
@@ -62,18 +69,16 @@ private fun FlightLoadingContent(modifier: Modifier = Modifier) {
 @Composable
 private fun FlightSuccessContent(
     uiState: FlightUiState.Success,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         if (uiState.isRefreshing) {
             FlightRefreshingBanner()
         }
-        if (uiState.refreshError != null) {
-            FlightRefreshErrorBanner(message = uiState.refreshError)
-        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(uiState.flights) { flight ->
@@ -91,21 +96,6 @@ private fun FlightRefreshingBanner(modifier: Modifier = Modifier) {
             text = "刷新中",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        )
-    }
-}
-
-@Composable
-private fun FlightRefreshErrorBanner(message: String, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.errorContainer,
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onErrorContainer,
-            modifier = Modifier.padding(16.dp),
         )
     }
 }

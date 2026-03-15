@@ -5,27 +5,24 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import idv.fan.iisigroup.android.test.feature.flight.FlightRoute
+import idv.fan.iisigroup.android.test.feature.flight.FlightNav
+import idv.fan.iisigroup.android.test.feature.flight.flightNavigation
 import idv.fan.iisigroup.android.test.ui.theme.IisigroupAndroidTestTheme
+import kotlin.reflect.KClass
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -40,38 +37,39 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@PreviewScreenSizes
 @Composable
-fun IisigroupAndroidTestApp(
-    viewModel: MainViewModel = hiltViewModel()
-) {
-    val currentDestination by viewModel.currentDestination.collectAsState()
+fun IisigroupAndroidTestApp() {
+    val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntry?.destination
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            AppDestinations.entries.forEach {
+            AppDestinations.entries.forEach { destination ->
+                val selected = currentDestination?.hasRoute(destination.routeClass) == true
                 item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = it.label
-                        )
+                    icon = { Icon(destination.icon, contentDescription = destination.label) },
+                    label = { Text(destination.label) },
+                    selected = selected,
+                    onClick = {
+                        navController.navigate(destination.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { viewModel.navigateTo(it) }
                 )
             }
-        }
+        },
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            when (currentDestination) {
-                AppDestinations.FLIGHT -> FlightRoute(modifier = Modifier.padding(innerPadding))
-                else -> Greeting(
-                    name = "Android",
-                    modifier = Modifier.padding(innerPadding),
-                )
-            }
+        NavHost(
+            navController = navController,
+            startDestination = FlightNav,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            flightNavigation()
         }
     }
 }
@@ -79,22 +77,8 @@ fun IisigroupAndroidTestApp(
 enum class AppDestinations(
     val label: String,
     val icon: ImageVector,
+    val route: Any,
+    val routeClass: KClass<*>,
 ) {
-    FLIGHT("航班", Icons.Default.List),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    IisigroupAndroidTestTheme {
-        Greeting("Android")
-    }
+    FLIGHT("航班", Icons.Default.List, FlightNav, FlightNav::class),
 }

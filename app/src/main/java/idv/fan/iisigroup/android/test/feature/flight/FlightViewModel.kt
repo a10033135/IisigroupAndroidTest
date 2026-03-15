@@ -8,8 +8,11 @@ import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -22,6 +25,9 @@ class FlightViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<FlightUiState>(FlightUiState.Loading)
     val uiState: StateFlow<FlightUiState> = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<FlightEvent>()
+    val events: SharedFlow<FlightEvent> = _events.asSharedFlow()
 
     private var loadJob: Job? = null
     private var refreshJob: Job? = null
@@ -56,16 +62,16 @@ class FlightViewModel @Inject constructor(
                 delay(REFRESH_INTERVAL_MS)
                 val current = _uiState.value as? FlightUiState.Success ?: break
                 Timber.d("Auto-refreshing flights")
-                _uiState.value = current.copy(isRefreshing = true, refreshError = null)
+                _uiState.value = current.copy(isRefreshing = true)
                 when (val result = getFlightsUseCase()) {
                     is ApiResult.Success -> {
                         Timber.d("Refreshed ${result.data.size} flights")
                         _uiState.value = FlightUiState.Success(result.data)
                     }
-                    is ApiResult.Error -> _uiState.value = current.copy(
-                        isRefreshing = false,
-                        refreshError = result.message,
-                    )
+                    is ApiResult.Error -> {
+                        _uiState.value = current.copy(isRefreshing = false)
+                        _events.emit(FlightEvent.ShowRefreshError(result.message))
+                    }
                 }
             }
         }

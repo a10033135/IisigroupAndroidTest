@@ -1,12 +1,19 @@
-### 專案架構
+### 專案說明
 - 語言：Kotlin / Compose 
-- 架構：CleanArchitecture / MVVM
-- 使用 Room 與 DataStore 
+- 本地儲存：DataStore 
 - 注入：Hilt
-- 網路： Retrofit 
-- 解析使用 moshi
 - 異步：coroutine
-- 需撰寫 ComposeUI test 及單元測試
+
+
+### 專案架構
+- 採 CleanArchitecture
+- MVVM 遵守單向資料流，由 StateFlow 掌握畫面狀態，由 SharedFlow 掌握發送事件
+- 當接到 API Response 時，使用 UiState 轉為頁面所需的資料，不直接在 ViewModel 使用 Response
+
+### 網路層
+- Retrofit
+- 解析使用 moshi
+- 針對網路異常(用戶沒有開啟網路)等裝置網路問題，拋出：「網路異常，...」，將實際裝置網路問題回報給用戶
 
 ### Code Rules
 - 使用 functional Composable，不用 class-based
@@ -22,7 +29,10 @@
 - 所有 Coroutine 使用 viewModelScope
 
 ### NavHost 原則
-- 依據 NowInAndroid 建立 NavHost
+- 為 MainActivity 的 NavigationSuiteScaffold 實作 NavHost 
+- 將各頁面的 Routing 抽出為 ***Navigation ，並將頁面 Route 使用最新的
 - 將 routing 拆成 ***Route(將Screen及ViewModel整合) ***Screen(純UI)
 
-### 每次使用 CLAUDE 處理後需拆解 Commit 並自動進 Commit 
+### 指令原則
+- 每次使用 CLAUDE 處理後需拆解 Commit 並自動進 Commit
+- 需撰寫 ComposeUI test 及單元測試
