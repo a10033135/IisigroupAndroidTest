@@ -4,12 +4,14 @@ import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import idv.fan.iisigroup.android.test.BuildConfig
 import idv.fan.iisigroup.android.test.addFlipperNetworkInterceptor
 import idv.fan.iisigroup.android.test.data.remote.api.ExchangeRateApiService
 import idv.fan.iisigroup.android.test.network.ApiKeyInterceptor
 import idv.fan.iisigroup.android.test.network.NetworkErrorInterceptor
+import android.content.Context
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -32,9 +34,9 @@ object ExchangeRateNetworkModule {
     @Provides
     @Singleton
     @ExchangeRateOkHttpClient
-    fun provideExchangeRateOkHttpClient(): OkHttpClient =
+    fun provideExchangeRateOkHttpClient(@ApplicationContext context: Context): OkHttpClient =
         OkHttpClient.Builder()
-            .addInterceptor(NetworkErrorInterceptor())
+            .addInterceptor(NetworkErrorInterceptor(context))
             .addInterceptor(ApiKeyInterceptor(BuildConfig.EXCHANGE_RATE_API_KEY))
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY

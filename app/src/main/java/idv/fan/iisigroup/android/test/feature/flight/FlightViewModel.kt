@@ -1,8 +1,11 @@
 package idv.fan.iisigroup.android.test.feature.flight
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
 import idv.fan.iisigroup.android.test.domain.model.Flight
 import idv.fan.iisigroup.android.test.domain.model.SyncInterval
@@ -28,6 +31,7 @@ import javax.inject.Inject
 class FlightViewModel @Inject constructor(
     private val getFlightsUseCase: GetFlightsUseCase,
     private val userPreferencesDataStore: UserPreferencesDataStore,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<FlightUiState>(FlightUiState.Loading)
@@ -126,7 +130,7 @@ class FlightViewModel @Inject constructor(
             if (!flight.airLineUrl.isNullOrEmpty()) {
                 _events.emit(FlightEvent.OpenUrl(flight.airLineUrl))
             } else {
-                _events.emit(FlightEvent.ShowToast("此航班沒有提供連結"))
+                _events.emit(FlightEvent.ShowToast(context.getString(R.string.flight_no_url_toast)))
             }
         }
     }

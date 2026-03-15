@@ -1,5 +1,8 @@
 package idv.fan.iisigroup.android.test.data.repository
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.data.remote.api.ExchangeRateApiService
 import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.ExchangeRate
@@ -9,6 +12,7 @@ import javax.inject.Inject
 
 class ExchangeRateRepositoryImpl @Inject constructor(
     private val apiService: ExchangeRateApiService,
+    @ApplicationContext private val context: Context,
 ) : ExchangeRateRepository {
 
     override suspend fun getExchangeRates(baseCurrency: Currency): ApiResult<List<ExchangeRate>> =
@@ -28,6 +32,6 @@ class ExchangeRateRepositoryImpl @Inject constructor(
             }
         }.fold(
             onSuccess = { ApiResult.Success(it) },
-            onFailure = { ApiResult.Error(it.message ?: "發生未知錯誤", it) },
+            onFailure = { ApiResult.Error(it.message ?: context.getString(R.string.error_unknown), it) },
         )
 }

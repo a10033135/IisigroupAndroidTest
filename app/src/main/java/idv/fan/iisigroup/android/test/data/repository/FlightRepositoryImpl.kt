@@ -1,5 +1,8 @@
 package idv.fan.iisigroup.android.test.data.repository
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.data.remote.api.FlightApiService
 import idv.fan.iisigroup.android.test.data.remote.model.FlightResponse
 import idv.fan.iisigroup.android.test.domain.model.Flight
@@ -9,13 +12,14 @@ import javax.inject.Inject
 
 class FlightRepositoryImpl @Inject constructor(
     private val apiService: FlightApiService,
+    @ApplicationContext private val context: Context,
 ) : FlightRepository {
 
     override suspend fun getFlights(): ApiResult<List<Flight>> = runCatching {
         apiService.getFlights().map { it.toDomain() }
     }.fold(
         onSuccess = { ApiResult.Success(it) },
-        onFailure = { ApiResult.Error(it.message ?: "發生未知錯誤", it) },
+        onFailure = { ApiResult.Error(it.message ?: context.getString(R.string.error_unknown), it) },
     )
 
     private fun FlightResponse.toDomain() = Flight(
