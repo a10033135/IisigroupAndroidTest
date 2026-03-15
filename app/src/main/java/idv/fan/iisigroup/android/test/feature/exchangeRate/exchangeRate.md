@@ -28,7 +28,7 @@
 | **base_currency** | string | 否 | 基準貨幣（所有匯率將相對於此貨幣）。預設為 **USD**。 |
 | **currencies** | string | 否 | 以逗號分隔的貨幣代碼列表（例如：EUR,USD,CAD）。若未指定，預設將顯示所有可用貨幣。 |
 
-- base_currency 為 TWD
+- base_currency 為 USD
 - currencies 為 USD / JPY / KRW / CNY / THB / GBP 
 - apiKey 列在環境變數需分為 Production / Dev 環境
 - 請將上述使用到的貨幣代碼轉為 enum 
@@ -37,8 +37,6 @@
 
   | 欄位名稱 (Field) | 類型 (Type) | 說明 (Description) |
   | :--- | :--- | :--- |
-  | **meta** | object | 包含 API 請求的輔助資訊，如數據最後更新時間。 |
-  | **meta.last_updated_at** | string (ISO 8601) | 此數據集的最後更新時間（例如：2023-04-27T10:15:00Z）。 |
   | **data** | object | 包含實際的匯率資訊。 |
   | **data.[CURRENCY_CODE]** | float | 以基準貨幣（Base Currency）為單位，對應各國貨幣代碼的匯率數值。 |
 - 請將上述 currency_code 依據 request currencies 列出來的代碼轉為相同的 enum 

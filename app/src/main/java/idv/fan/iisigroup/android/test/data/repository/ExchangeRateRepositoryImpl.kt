@@ -33,7 +33,7 @@ class ExchangeRateRepositoryImpl @Inject constructor(
             onSuccess = { ApiResult.Success(it) },
             onFailure = { throwable ->
                 val message = when (throwable) {
-                    is UnknownHostException, is SocketException, is ConnectException ->
+                    is UnknownHostException, is SocketException ->
                         "網路異常，請確認網路連線後再試"
                     else -> throwable.message ?: "發生未知錯誤"
                 }
