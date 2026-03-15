@@ -177,7 +177,7 @@ private fun handleCalculatorInput(
                 else -> label
             }
             val base = if (result.isNotEmpty() && expression.isEmpty()) result else expression
-            if (base.isNotEmpty() && base.last() !in listOf('+', '-', '*', '/')) {
+            if (base.isNotEmpty() && base.last() !in listOf('+', '-', '*', '/', 'x')) {
                 onExpressionChange(base + op)
                 onResultChange("")
             }
@@ -203,7 +203,7 @@ private fun handleCalculatorInput(
 private fun evaluateExpression(expression: String): Double? {
     if (expression.isEmpty()) return null
     return try {
-        val normalized = expression.replace("×", "*").replace("÷", "/")
+        val normalized = expression.replace("x", "*")
         val tokens = tokenize(normalized) ?: return null
         parseExpression(tokens)
     } catch (e: Exception) {

@@ -256,6 +256,8 @@ private fun ExchangeRateItem(
     modifier: Modifier = Modifier,
 ) {
     val displayValue = rate.rate * calculatorAmount
+    val amountLabel = if (calculatorAmount == 1.0) "1"
+    else "%.4f".format(calculatorAmount).trimEnd('0').trimEnd('.')
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -275,11 +277,7 @@ private fun ExchangeRateItem(
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
-                    text = if (calculatorAmount == 1.0) {
-                        stringResource(R.string.exchange_rate_per, baseCurrency.code)
-                    } else {
-                        stringResource(R.string.exchange_rate_amount, "%.4f".format(calculatorAmount).trimEnd('0').trimEnd('.'))
-                    },
+                    text = stringResource(R.string.exchange_rate_per, amountLabel, baseCurrency.code),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
