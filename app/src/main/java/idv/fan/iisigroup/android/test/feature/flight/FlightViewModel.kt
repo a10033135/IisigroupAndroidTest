@@ -8,14 +8,13 @@ import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,9 +24,6 @@ class FlightViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<FlightUiState>(FlightUiState.Loading)
     val uiState: StateFlow<FlightUiState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<FlightEvent>()
-    val events: SharedFlow<FlightEvent> = _events.asSharedFlow()
 
     private var loadJob: Job? = null
     private var refreshJob: Job? = null
@@ -45,7 +41,10 @@ class FlightViewModel @Inject constructor(
             when (val result = getFlightsUseCase()) {
                 is ApiResult.Success -> {
                     Timber.d("Loaded ${result.data.size} flights")
-                    _uiState.value = FlightUiState.Success(result.data)
+                    _uiState.value = FlightUiState.Success(
+                        flights = result.data,
+                        lastRefreshTime = currentTime(),
+                    )
                     startAutoRefresh()
                 }
                 is ApiResult.Error -> {
@@ -62,20 +61,28 @@ class FlightViewModel @Inject constructor(
                 delay(REFRESH_INTERVAL_MS)
                 val current = _uiState.value as? FlightUiState.Success ?: break
                 Timber.d("Auto-refreshing flights")
-                _uiState.value = current.copy(isRefreshing = true)
+                _uiState.value = current.copy(isRefreshing = true, refreshError = null)
                 when (val result = getFlightsUseCase()) {
                     is ApiResult.Success -> {
                         Timber.d("Refreshed ${result.data.size} flights")
-                        _uiState.value = FlightUiState.Success(result.data)
+                        _uiState.value = FlightUiState.Success(
+                            flights = result.data,
+                            lastRefreshTime = currentTime(),
+                        )
                     }
                     is ApiResult.Error -> {
-                        _uiState.value = current.copy(isRefreshing = false)
-                        _events.emit(FlightEvent.ShowRefreshError(result.message))
+                        _uiState.value = current.copy(
+                            isRefreshing = false,
+                            refreshError = result.message,
+                        )
                     }
                 }
             }
         }
     }
+
+    private fun currentTime(): String =
+        LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
 
     companion object {
         const val REFRESH_INTERVAL_MS = 10_000L

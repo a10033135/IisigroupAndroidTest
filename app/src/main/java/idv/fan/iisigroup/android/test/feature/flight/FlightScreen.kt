@@ -42,55 +42,57 @@ fun FlightScreen(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
 ) {
-    when (uiState) {
-        is FlightUiState.Loading -> FlightLoadingContent(
-            modifier = modifier.fillMaxSize().padding(contentPadding),
-        )
-        is FlightUiState.Success -> FlightSuccessContent(
-            uiState = uiState,
-            contentPadding = contentPadding,
-            modifier = modifier.fillMaxSize(),
-        )
-        is FlightUiState.Error -> FlightErrorContent(
-            message = uiState.message,
-            onRetry = onRetry,
-            modifier = modifier.fillMaxSize().padding(contentPadding),
-        )
-    }
-}
+    Column(modifier = modifier.padding(contentPadding)) {
+        // 更新資訊區塊
+        FlightUpdateInfoSection(uiState = uiState)
 
-@Composable
-private fun FlightLoadingContent(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun FlightSuccessContent(
-    uiState: FlightUiState.Success,
-    contentPadding: PaddingValues,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier) {
-        if (uiState.isRefreshing) {
-            FlightRefreshingBanner()
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = contentPadding,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(uiState.flights) { flight ->
-                FlightListItem(flight = flight)
+        // 內容區塊
+        Box(modifier = Modifier.weight(1f)) {
+            when (uiState) {
+                is FlightUiState.Loading -> FlightLoadingContent(modifier = Modifier.fillMaxSize())
+                is FlightUiState.Success -> FlightSuccessContent(
+                    flights = uiState.flights,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                is FlightUiState.Error -> FlightErrorContent(
+                    message = uiState.message,
+                    onRetry = onRetry,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
 }
 
+// 區塊一：更新資訊
 @Composable
-private fun FlightRefreshingBanner(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
+private fun FlightUpdateInfoSection(uiState: FlightUiState) {
+    when (uiState) {
+        is FlightUiState.Loading -> FlightUpdateInfoText(text = "尚未取得資料")
+
+        is FlightUiState.Success -> when {
+            uiState.isRefreshing -> FlightRefreshingBanner()
+            uiState.refreshError != null -> FlightUpdateInfoError(message = uiState.refreshError)
+            else -> FlightUpdateInfoText(text = "最後更新：${uiState.lastRefreshTime}")
+        }
+
+        is FlightUiState.Error -> FlightUpdateInfoError(message = uiState.message)
+    }
+}
+
+@Composable
+private fun FlightUpdateInfoText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+    )
+}
+
+@Composable
+private fun FlightRefreshingBanner() {
+    Column(modifier = Modifier.fillMaxWidth()) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         Text(
             text = "刷新中",
@@ -100,6 +102,47 @@ private fun FlightRefreshingBanner(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+private fun FlightUpdateInfoError(message: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.errorContainer,
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+    }
+}
+
+// 區塊二（Loading）：空白 + LoadingProgress
+@Composable
+private fun FlightLoadingContent(modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+// 區塊二（Success）：航班列表
+@Composable
+private fun FlightSuccessContent(
+    flights: List<Flight>,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(flights) { flight ->
+            FlightListItem(flight = flight)
+        }
+    }
+}
+
+// 區塊二（Failed）：錯誤訊息 + 重新嘗試
 @Composable
 private fun FlightErrorContent(
     message: String,

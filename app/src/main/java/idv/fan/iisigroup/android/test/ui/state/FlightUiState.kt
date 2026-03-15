@@ -6,7 +6,9 @@ sealed class FlightUiState {
     data object Loading : FlightUiState()
     data class Success(
         val flights: List<Flight>,
+        val lastRefreshTime: String,
         val isRefreshing: Boolean = false,
+        val refreshError: String? = null,
     ) : FlightUiState()
     data class Error(val message: String) : FlightUiState()
 }
