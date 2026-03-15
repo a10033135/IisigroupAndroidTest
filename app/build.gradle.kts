@@ -1,8 +1,11 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -16,7 +19,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "idv.fan.iisigroup.android.test.HiltTestRunner"
     }
 
     buildTypes {
@@ -29,11 +32,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
@@ -49,12 +55,20 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.moshi)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    implementation(libs.datastore.preferences)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.android.compiler)
+
+    add("ksp", libs.hilt.android.compiler)
+    add("ksp", libs.moshi.kotlin.codegen)
+    add("ksp", libs.room.compiler)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -62,6 +76,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    add("kspAndroidTest", libs.hilt.android.compiler)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

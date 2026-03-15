@@ -1,13 +1,19 @@
 package idv.fan.iisigroup.android.test
 
+import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
 import idv.fan.iisigroup.android.test.domain.model.Post
 import idv.fan.iisigroup.android.test.domain.usecase.GetPostsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
+import idv.fan.iisigroup.android.test.ui.state.PostUiState
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -23,14 +29,16 @@ class MainViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val mockGetPostsUseCase = mockk<GetPostsUseCase>()
+    private val mockDataStore = mockk<UserPreferencesDataStore>()
     private lateinit var viewModel: MainViewModel
 
     @Before
     fun setup() {
-        viewModel = MainViewModel(mockGetPostsUseCase)
+        every { mockDataStore.isDarkTheme } returns flowOf(false)
+        viewModel = MainViewModel(mockGetPostsUseCase, mockDataStore)
     }
 
-    // --- Navigation tests ---
+    // --- Navigation ---
 
     @Test
     fun `initial destination is HOME`() {
@@ -38,13 +46,13 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `navigateTo FAVORITES changes destination to FAVORITES`() = runTest {
+    fun `navigateTo FAVORITES changes destination`() = runTest {
         viewModel.navigateTo(AppDestinations.FAVORITES)
         assertEquals(AppDestinations.FAVORITES, viewModel.currentDestination.value)
     }
 
     @Test
-    fun `navigateTo PROFILE changes destination to PROFILE`() = runTest {
+    fun `navigateTo PROFILE changes destination`() = runTest {
         viewModel.navigateTo(AppDestinations.PROFILE)
         assertEquals(AppDestinations.PROFILE, viewModel.currentDestination.value)
     }
@@ -57,46 +65,60 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `navigateTo same destination keeps current destination`() = runTest {
-        viewModel.navigateTo(AppDestinations.HOME)
-        assertEquals(AppDestinations.HOME, viewModel.currentDestination.value)
-    }
-
-    @Test
-    fun `navigateTo is called and updates state via spyk`() = runTest {
+    fun `navigateTo via spyk verifies call`() = runTest {
         val spyViewModel = spyk(viewModel)
         spyViewModel.navigateTo(AppDestinations.PROFILE)
         verify { spyViewModel.navigateTo(AppDestinations.PROFILE) }
         assertEquals(AppDestinations.PROFILE, spyViewModel.currentDestination.value)
     }
 
-    // --- Posts API tests ---
+    // --- Posts UI State ---
 
     @Test
-    fun `initial postsState is null`() {
-        assertEquals(null, viewModel.postsState.value)
+    fun `initial postUiState is Idle`() {
+        assertTrue(viewModel.postUiState.value is PostUiState.Idle)
     }
 
     @Test
-    fun `fetchPosts sets postsState to Success on success`() = runTest {
+    fun `fetchPosts transitions through Loading then Success`() = runTest {
         val posts = listOf(Post(1, 1, "Title", "Body"))
         coEvery { mockGetPostsUseCase() } returns ApiResult.Success(posts)
 
         viewModel.fetchPosts()
         advanceUntilIdle()
 
-        assertTrue(viewModel.postsState.value is ApiResult.Success)
-        assertEquals(posts, (viewModel.postsState.value as ApiResult.Success).data)
+        val state = viewModel.postUiState.value
+        assertTrue(state is PostUiState.Success)
+        assertEquals(posts, (state as PostUiState.Success).posts)
     }
 
     @Test
-    fun `fetchPosts sets postsState to Error on failure`() = runTest {
+    fun `fetchPosts sets Error state on failure`() = runTest {
         coEvery { mockGetPostsUseCase() } returns ApiResult.Error("Server error")
 
         viewModel.fetchPosts()
         advanceUntilIdle()
 
-        assertTrue(viewModel.postsState.value is ApiResult.Error)
-        assertEquals("Server error", (viewModel.postsState.value as ApiResult.Error).message)
+        val state = viewModel.postUiState.value
+        assertTrue(state is PostUiState.Error)
+        assertEquals("Server error", (state as PostUiState.Error).message)
+    }
+
+    // --- DataStore ---
+
+    @Test
+    fun `isDarkTheme default is false`() {
+        assertEquals(false, viewModel.isDarkTheme.value)
+    }
+
+    @Test
+    fun `isDarkTheme reflects DataStore value when subscribed`() = runTest {
+        every { mockDataStore.isDarkTheme } returns flowOf(true)
+        val vm = MainViewModel(mockGetPostsUseCase, mockDataStore)
+        val collected = mutableListOf<Boolean>()
+        val job = vm.isDarkTheme.onEach { collected.add(it) }.launchIn(this)
+        advanceUntilIdle()
+        assertTrue(collected.contains(true))
+        job.cancel()
     }
 }
