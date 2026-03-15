@@ -1,10 +1,7 @@
 package idv.fan.iisigroup.android.test
 
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
-import idv.fan.iisigroup.android.test.domain.model.Post
-import idv.fan.iisigroup.android.test.domain.usecase.GetPostsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
-import idv.fan.iisigroup.android.test.ui.state.PostUiState
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -28,14 +25,13 @@ class MainViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val mockGetPostsUseCase = mockk<GetPostsUseCase>()
     private val mockDataStore = mockk<UserPreferencesDataStore>()
     private lateinit var viewModel: MainViewModel
 
     @Before
     fun setup() {
         every { mockDataStore.isDarkTheme } returns flowOf(false)
-        viewModel = MainViewModel(mockGetPostsUseCase, mockDataStore)
+        viewModel = MainViewModel(mockDataStore)
     }
 
     // --- Navigation ---
@@ -72,38 +68,6 @@ class MainViewModelTest {
         assertEquals(AppDestinations.PROFILE, spyViewModel.currentDestination.value)
     }
 
-    // --- Posts UI State ---
-
-    @Test
-    fun `initial postUiState is Idle`() {
-        assertTrue(viewModel.postUiState.value is PostUiState.Idle)
-    }
-
-    @Test
-    fun `fetchPosts transitions through Loading then Success`() = runTest {
-        val posts = listOf(Post(1, 1, "Title", "Body"))
-        coEvery { mockGetPostsUseCase() } returns ApiResult.Success(posts)
-
-        viewModel.fetchPosts()
-        advanceUntilIdle()
-
-        val state = viewModel.postUiState.value
-        assertTrue(state is PostUiState.Success)
-        assertEquals(posts, (state as PostUiState.Success).posts)
-    }
-
-    @Test
-    fun `fetchPosts sets Error state on failure`() = runTest {
-        coEvery { mockGetPostsUseCase() } returns ApiResult.Error("Server error")
-
-        viewModel.fetchPosts()
-        advanceUntilIdle()
-
-        val state = viewModel.postUiState.value
-        assertTrue(state is PostUiState.Error)
-        assertEquals("Server error", (state as PostUiState.Error).message)
-    }
-
     // --- DataStore ---
 
     @Test
@@ -114,7 +78,7 @@ class MainViewModelTest {
     @Test
     fun `isDarkTheme reflects DataStore value when subscribed`() = runTest {
         every { mockDataStore.isDarkTheme } returns flowOf(true)
-        val vm = MainViewModel(mockGetPostsUseCase, mockDataStore)
+        val vm = MainViewModel(mockDataStore)
         val collected = mutableListOf<Boolean>()
         val job = vm.isDarkTheme.onEach { collected.add(it) }.launchIn(this)
         advanceUntilIdle()

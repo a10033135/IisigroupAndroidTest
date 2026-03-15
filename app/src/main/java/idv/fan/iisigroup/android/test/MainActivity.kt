@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import idv.fan.iisigroup.android.test.feature.flight.FlightRoute
 import idv.fan.iisigroup.android.test.ui.theme.IisigroupAndroidTestTheme
 
 @AndroidEntryPoint
@@ -63,10 +65,13 @@ fun IisigroupAndroidTestApp(
         }
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+            when (currentDestination) {
+                AppDestinations.FLIGHT -> FlightRoute(modifier = Modifier.padding(innerPadding))
+                else -> Greeting(
+                    name = "Android",
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
         }
     }
 }
@@ -78,6 +83,7 @@ enum class AppDestinations(
     HOME("Home", Icons.Default.Home),
     FAVORITES("Favorites", Icons.Default.Favorite),
     PROFILE("Profile", Icons.Default.AccountBox),
+    FLIGHT("航班", Icons.Default.List),
 }
 
 @Composable

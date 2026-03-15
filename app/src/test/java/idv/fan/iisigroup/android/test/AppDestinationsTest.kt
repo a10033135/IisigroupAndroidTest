@@ -6,8 +6,8 @@ import org.junit.Test
 class AppDestinationsTest {
 
     @Test
-    fun `AppDestinations contains exactly three entries`() {
-        assertEquals(3, AppDestinations.entries.size)
+    fun `AppDestinations contains exactly four entries`() {
+        assertEquals(4, AppDestinations.entries.size)
     }
 
     @Test
@@ -26,21 +26,27 @@ class AppDestinationsTest {
     }
 
     @Test
+    fun `FLIGHT has correct label`() {
+        assertEquals("航班", AppDestinations.FLIGHT.label)
+    }
+
+    @Test
     fun `first entry is HOME`() {
         assertEquals(AppDestinations.HOME, AppDestinations.entries.first())
     }
 
     @Test
-    fun `last entry is PROFILE`() {
-        assertEquals(AppDestinations.PROFILE, AppDestinations.entries.last())
+    fun `last entry is FLIGHT`() {
+        assertEquals(AppDestinations.FLIGHT, AppDestinations.entries.last())
     }
 
     @Test
-    fun `entries order is HOME FAVORITES PROFILE`() {
+    fun `entries order is HOME FAVORITES PROFILE FLIGHT`() {
         val expected = listOf(
             AppDestinations.HOME,
             AppDestinations.FAVORITES,
-            AppDestinations.PROFILE
+            AppDestinations.PROFILE,
+            AppDestinations.FLIGHT,
         )
         assertEquals(expected, AppDestinations.entries.toList())
     }

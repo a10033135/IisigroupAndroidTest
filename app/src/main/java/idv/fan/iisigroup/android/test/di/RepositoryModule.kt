@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import idv.fan.iisigroup.android.test.data.repository.PostRepositoryImpl
-import idv.fan.iisigroup.android.test.domain.repository.PostRepository
+import idv.fan.iisigroup.android.test.data.repository.FlightRepositoryImpl
+import idv.fan.iisigroup.android.test.domain.repository.FlightRepository
 import javax.inject.Singleton
 
 @Module
@@ -14,5 +14,5 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindPostRepository(impl: PostRepositoryImpl): PostRepository
+    abstract fun bindFlightRepository(impl: FlightRepositoryImpl): FlightRepository
 }

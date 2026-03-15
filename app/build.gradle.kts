@@ -23,9 +23,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
         }
     }
     compileOptions {
@@ -34,6 +38,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -62,6 +67,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.datastore.preferences)
+    implementation(libs.coil.compose)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
 

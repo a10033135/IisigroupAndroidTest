@@ -5,7 +5,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import idv.fan.iisigroup.android.test.data.remote.api.PostApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -37,9 +36,4 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-
-    @Provides
-    @Singleton
-    fun providePostApiService(retrofit: Retrofit): PostApiService =
-        retrofit.create(PostApiService::class.java)
 }
