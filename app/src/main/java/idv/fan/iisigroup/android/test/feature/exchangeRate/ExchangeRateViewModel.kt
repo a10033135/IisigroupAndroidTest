@@ -3,9 +3,9 @@ package idv.fan.iisigroup.android.test.feature.exchangeRate
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import idv.fan.iisigroup.android.test.core.IssConstants
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
 import idv.fan.iisigroup.android.test.domain.model.Currency
-import idv.fan.iisigroup.android.test.domain.model.SyncInterval
 import idv.fan.iisigroup.android.test.domain.usecase.GetExchangeRatesUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.ExchangeRateUiState
@@ -31,10 +31,10 @@ class ExchangeRateViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ExchangeRateUiState>(ExchangeRateUiState.Loading)
     val uiState: StateFlow<ExchangeRateUiState> = _uiState.asStateFlow()
 
-    private var currentBaseCurrency: Currency = Currency.USD
+    private var currentBaseCurrency: Currency = IssConstants.UserPreferences.DEFAULT_CURRENCY
 
-    private var currentAutoSyncEnabled: Boolean = true
-    private var currentAutoSyncIntervalMs: Long = SyncInterval.default.ms
+    private var currentAutoSyncEnabled: Boolean = IssConstants.UserPreferences.DEFAULT_AUTO_SYNC_ENABLED
+    private var currentAutoSyncIntervalMs: Long = IssConstants.UserPreferences.DEFAULT_SYNC_INTERVAL.ms
 
     private var loadJob: Job? = null
     private var refreshJob: Job? = null

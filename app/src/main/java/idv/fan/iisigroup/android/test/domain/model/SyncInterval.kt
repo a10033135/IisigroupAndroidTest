@@ -7,7 +7,6 @@ enum class SyncInterval(val ms: Long) {
     ;
 
     companion object {
-        val default = TEN_SECONDS
-        fun fromMs(ms: Long): SyncInterval = entries.find { it.ms == ms } ?: default
+        fun fromMs(ms: Long): SyncInterval = entries.find { it.ms == ms } ?: TEN_SECONDS
     }
 }

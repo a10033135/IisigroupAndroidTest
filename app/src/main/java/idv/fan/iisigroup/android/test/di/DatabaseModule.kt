@@ -9,10 +9,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import idv.fan.iisigroup.android.test.core.IssConstants
 import javax.inject.Singleton
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "user_preferences",
+    name = IssConstants.DataStore.USER_PREFERENCES_NAME,
 )
 
 @Module

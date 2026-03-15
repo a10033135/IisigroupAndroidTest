@@ -6,8 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import idv.fan.iisigroup.android.test.domain.model.Currency
-import idv.fan.iisigroup.android.test.domain.model.SyncInterval
+import idv.fan.iisigroup.android.test.core.IssConstants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -16,19 +15,19 @@ class UserPreferencesDataStore @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) {
     val isDarkTheme: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[DARK_THEME_KEY] ?: false
+        prefs[DARK_THEME_KEY] ?: IssConstants.UserPreferences.DEFAULT_DARK_THEME
     }
 
     val autoSyncEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[AUTO_SYNC_ENABLED_KEY] ?: true
+        prefs[AUTO_SYNC_ENABLED_KEY] ?: IssConstants.UserPreferences.DEFAULT_AUTO_SYNC_ENABLED
     }
 
     val autoSyncIntervalMs: Flow<Long> = dataStore.data.map { prefs ->
-        prefs[AUTO_SYNC_INTERVAL_MS_KEY] ?: SyncInterval.default.ms
+        prefs[AUTO_SYNC_INTERVAL_MS_KEY] ?: IssConstants.UserPreferences.DEFAULT_SYNC_INTERVAL.ms
     }
 
     val defaultCurrencyCode: Flow<String> = dataStore.data.map { prefs ->
-        prefs[DEFAULT_CURRENCY_KEY] ?: Currency.TWD.code
+        prefs[DEFAULT_CURRENCY_KEY] ?: IssConstants.UserPreferences.DEFAULT_CURRENCY.code
     }
 
     suspend fun setDarkTheme(enabled: Boolean) {
