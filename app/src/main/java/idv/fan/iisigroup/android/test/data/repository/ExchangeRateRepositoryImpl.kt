@@ -5,9 +5,6 @@ import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.ExchangeRate
 import idv.fan.iisigroup.android.test.domain.repository.ExchangeRateRepository
 import idv.fan.iisigroup.android.test.network.ApiResult
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 class ExchangeRateRepositoryImpl @Inject constructor(
@@ -31,13 +28,6 @@ class ExchangeRateRepositoryImpl @Inject constructor(
             }
         }.fold(
             onSuccess = { ApiResult.Success(it) },
-            onFailure = { throwable ->
-                val message = when (throwable) {
-                    is UnknownHostException, is SocketException ->
-                        "網路異常，請確認網路連線後再試"
-                    else -> throwable.message ?: "發生未知錯誤"
-                }
-                ApiResult.Error(message, throwable)
-            },
+            onFailure = { ApiResult.Error(it.message ?: "發生未知錯誤", it) },
         )
 }

@@ -9,6 +9,7 @@ import idv.fan.iisigroup.android.test.BuildConfig
 import idv.fan.iisigroup.android.test.addFlipperNetworkInterceptor
 import idv.fan.iisigroup.android.test.data.remote.api.ExchangeRateApiService
 import idv.fan.iisigroup.android.test.network.ApiKeyInterceptor
+import idv.fan.iisigroup.android.test.network.NetworkErrorInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -33,6 +34,7 @@ object ExchangeRateNetworkModule {
     @ExchangeRateOkHttpClient
     fun provideExchangeRateOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
+            .addInterceptor(NetworkErrorInterceptor())
             .addInterceptor(ApiKeyInterceptor(BuildConfig.EXCHANGE_RATE_API_KEY))
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY

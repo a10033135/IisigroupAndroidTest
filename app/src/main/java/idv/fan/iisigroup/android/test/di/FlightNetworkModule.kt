@@ -9,6 +9,7 @@ import idv.fan.iisigroup.android.test.BuildConfig
 import idv.fan.iisigroup.android.test.addFlipperNetworkInterceptor
 import idv.fan.iisigroup.android.test.data.remote.api.FlightApiService
 import idv.fan.iisigroup.android.test.network.FlightJsRedirectInterceptor
+import idv.fan.iisigroup.android.test.network.NetworkErrorInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -33,6 +34,7 @@ object FlightNetworkModule {
     @FlightOkHttpClient
     fun provideFlightOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
+            .addInterceptor(NetworkErrorInterceptor())
             .addInterceptor(FlightJsRedirectInterceptor())
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
