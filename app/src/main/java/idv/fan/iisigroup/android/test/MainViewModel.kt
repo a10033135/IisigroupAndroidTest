@@ -18,7 +18,7 @@ class MainViewModel @Inject constructor(
     private val userPreferencesDataStore: UserPreferencesDataStore,
 ) : ViewModel() {
 
-    private val _currentDestination = MutableStateFlow(AppDestinations.HOME)
+    private val _currentDestination = MutableStateFlow(AppDestinations.FLIGHT)
     val currentDestination: StateFlow<AppDestinations> = _currentDestination.asStateFlow()
 
     val isDarkTheme: StateFlow<Boolean> = userPreferencesDataStore.isDarkTheme

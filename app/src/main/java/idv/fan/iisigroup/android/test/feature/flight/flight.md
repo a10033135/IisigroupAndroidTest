@@ -3,7 +3,8 @@
 - 串接說明
   - Loading：畫面空白，以 LoadingProgress 顯示讀取狀態
   - Success：LoadingProgress 消失，顯示航班資訊列表，成功後需每十秒需刷新一次，每十秒刷新時需在畫面顯示 LoadingProgress 文字撰寫刷新中，刷新失敗時在頁面最上方，有個獨立區塊顯示錯誤訊息，但不進入錯誤畫面
-  - Failed：錯誤時顯示錯誤訊息及重新嘗試的按鈕
+  - Failed：
+    - API 錯誤時顯示錯誤訊息及重新嘗試的按鈕
 
 ### API 說明
 - API 串接：@GET https://www.kia.gov.tw/API/InstantSchedule.ashx?AirFlyLine=2&AirFlyIO=2

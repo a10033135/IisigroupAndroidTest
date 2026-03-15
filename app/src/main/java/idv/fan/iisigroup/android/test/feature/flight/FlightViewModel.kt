@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,13 +34,18 @@ class FlightViewModel @Inject constructor(
         loadJob?.cancel()
         refreshJob?.cancel()
         loadJob = viewModelScope.launch {
+            Timber.d("Loading flights")
             _uiState.value = FlightUiState.Loading
             when (val result = getFlightsUseCase()) {
                 is ApiResult.Success -> {
+                    Timber.d("Loaded ${result.data.size} flights")
                     _uiState.value = FlightUiState.Success(result.data)
                     startAutoRefresh()
                 }
-                is ApiResult.Error -> _uiState.value = FlightUiState.Error(result.message)
+                is ApiResult.Error -> {
+                    Timber.e("Load failed: ${result.message}")
+                    _uiState.value = FlightUiState.Error(result.message)
+                }
             }
         }
     }
@@ -49,9 +55,13 @@ class FlightViewModel @Inject constructor(
             while (true) {
                 delay(REFRESH_INTERVAL_MS)
                 val current = _uiState.value as? FlightUiState.Success ?: break
+                Timber.d("Auto-refreshing flights")
                 _uiState.value = current.copy(isRefreshing = true, refreshError = null)
                 when (val result = getFlightsUseCase()) {
-                    is ApiResult.Success -> _uiState.value = FlightUiState.Success(result.data)
+                    is ApiResult.Success -> {
+                        Timber.d("Refreshed ${result.data.size} flights")
+                        _uiState.value = FlightUiState.Success(result.data)
+                    }
                     is ApiResult.Error -> _uiState.value = current.copy(
                         isRefreshing = false,
                         refreshError = result.message,
