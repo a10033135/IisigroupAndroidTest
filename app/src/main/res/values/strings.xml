@@ -1,3 +1,53 @@
 <resources>
     <string name="app_name">IisigroupAndroidTest</string>
+
+    <!-- Navigation Tabs -->
+    <string name="tab_flight">航班</string>
+    <string name="tab_exchange_rate">匯率</string>
+    <string name="tab_setting">設定</string>
+
+    <!-- Common -->
+    <string name="common_no_data">尚未取得資料</string>
+    <string name="common_refreshing">刷新中</string>
+    <string name="common_retry">重新嘗試</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_last_update">最後更新：%s</string>
+
+    <!-- Flight -->
+    <string name="title_flight">航班資訊</string>
+    <string name="flight_empty">目前無任何航班資訊</string>
+    <string name="flight_expect_time">預計: %s</string>
+    <string name="flight_actual_time">實際: %s</string>
+    <string name="flight_boarding_gate">登機門: %s</string>
+    <string name="flight_filter_arrived">抵達</string>
+    <string name="flight_no_url_toast">此航班沒有提供連結</string>
+
+    <!-- Exchange Rate -->
+    <string name="title_exchange_rate">匯率換算</string>
+    <string name="exchange_rate_empty">目前無任何匯率資訊</string>
+    <string name="exchange_rate_switch_currency">切換貨幣</string>
+    <string name="exchange_rate_base">基準：%s</string>
+    <string name="exchange_rate_per">/ 1 %s</string>
+    <string name="exchange_rate_picker_title">選擇基準貨幣</string>
+
+    <!-- Setting -->
+    <string name="title_setting">設定頁面</string>
+    <string name="setting_version">版本號碼</string>
+    <string name="setting_dark_mode">暗黑模式</string>
+    <string name="setting_auto_sync">自動同步</string>
+    <string name="setting_auto_sync_desc">自動同步匯率及航班資料</string>
+    <string name="setting_sync_interval">同步間隔</string>
+    <string name="setting_default_currency">預設貨幣</string>
+    <string name="setting_default_currency_desc">匯率頁面的預設基準貨幣</string>
+    <string name="setting_currency_select_desc">選擇貨幣</string>
+    <string name="setting_currency_picker_title">選擇預設貨幣</string>
+
+    <!-- Sync Interval Options -->
+    <string name="sync_interval_10s">10 秒</string>
+    <string name="sync_interval_1m">1 分鐘</string>
+    <string name="sync_interval_5m">5 分鐘</string>
+
+    <!-- Error Messages -->
+    <string name="error_unknown">發生未知錯誤</string>
+    <string name="error_network">網路異常，請確認網路連線後再試</string>
 </resources>

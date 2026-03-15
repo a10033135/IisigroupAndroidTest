@@ -1,9 +1,9 @@
 package idv.fan.iisigroup.android.test.domain.model
 
-enum class SyncInterval(val label: String, val ms: Long) {
-    TEN_SECONDS("10 秒", 10_000L),
-    ONE_MINUTE("1 分鐘", 60_000L),
-    FIVE_MINUTES("5 分鐘", 300_000L),
+enum class SyncInterval(val ms: Long) {
+    TEN_SECONDS(10_000L),
+    ONE_MINUTE(60_000L),
+    FIVE_MINUTES(300_000L),
     ;
 
     companion object {
