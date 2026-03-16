@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,6 +8,11 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+}
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -27,14 +33,16 @@ android {
         debug {
             buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
             buildConfigField("String", "EXCHANGE_RATE_BASE_URL", "\"https://api.freecurrencyapi.com/v1/\"")
-            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"fca_live_iG1uxn9wgTllfRilqJbwrkQzYj9gYfCUbCvOGjda\"")
+            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${localProperties.getProperty("EXCHANGE_RATE_API_KEY", "")}\"")
+
         }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
             buildConfigField("String", "EXCHANGE_RATE_BASE_URL", "\"https://api.freecurrencyapi.com/v1/\"")
-            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"fca_live_iG1uxn9wgTllfRilqJbwrkQzYj9gYfCUbCvOGjda\"")
+            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${localProperties.getProperty("EXCHANGE_RATE_API_KEY", "")}\"")
+
         }
     }
     compileOptions {
