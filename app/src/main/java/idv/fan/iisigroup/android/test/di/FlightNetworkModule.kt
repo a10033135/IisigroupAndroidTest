@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import idv.fan.iisigroup.android.test.BuildConfig
 import idv.fan.iisigroup.android.test.addFlipperNetworkInterceptor
+import okhttp3.logging.HttpLoggingInterceptor.Level
 import idv.fan.iisigroup.android.test.data.remote.api.FlightApiService
 import idv.fan.iisigroup.android.test.network.FlightJsRedirectInterceptor
 import idv.fan.iisigroup.android.test.network.NetworkErrorInterceptor
@@ -39,7 +40,7 @@ object FlightNetworkModule {
             .addInterceptor(NetworkErrorInterceptor(context))
             .addInterceptor(FlightJsRedirectInterceptor())
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = if (BuildConfig.DEBUG) Level.BODY else Level.NONE
             })
             .addFlipperNetworkInterceptor()
             .build()

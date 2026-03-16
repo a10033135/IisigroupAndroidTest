@@ -7,8 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
+import idv.fan.iisigroup.android.test.core.IssConstants
 import idv.fan.iisigroup.android.test.domain.model.Flight
-import idv.fan.iisigroup.android.test.domain.model.SyncInterval
 import idv.fan.iisigroup.android.test.domain.usecase.GetFlightsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
@@ -43,8 +43,8 @@ class FlightViewModel @Inject constructor(
     private var allFlights: List<Flight> = emptyList()
     private var currentFilters: Set<FlightFilterOption> = emptySet()
 
-    private var currentAutoSyncEnabled: Boolean = true
-    private var currentAutoSyncIntervalMs: Long = SyncInterval.default.ms
+    private var currentAutoSyncEnabled: Boolean = IssConstants.UserPreferences.DEFAULT_AUTO_SYNC_ENABLED
+    private var currentAutoSyncIntervalMs: Long = IssConstants.UserPreferences.DEFAULT_SYNC_INTERVAL.ms
 
     private var loadJob: Job? = null
     private var refreshJob: Job? = null

@@ -52,4 +52,11 @@
     <!-- Error Messages -->
     <string name="error_unknown">發生未知錯誤</string>
     <string name="error_network">網路異常，請確認網路連線後再試</string>
+    <string name="error_network_timeout">連線逾時，請稍後再試</string>
+
+    <!-- Flight Status -->
+    <string name="flight_status_arrived">抵達</string>
+    <string name="flight_status_delayed">延誤</string>
+    <string name="flight_status_cancelled">取消</string>
+    <string name="flight_status_departed">起飛</string>
 </resources>

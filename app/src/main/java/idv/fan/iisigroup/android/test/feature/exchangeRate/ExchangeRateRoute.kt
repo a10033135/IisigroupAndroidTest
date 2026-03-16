@@ -50,7 +50,8 @@ fun ExchangeRateRoute(
         )
     }
 
-    if (uiState is ExchangeRateUiState.Success && (uiState as ExchangeRateUiState.Success).showCalculator) {
+    val successState = uiState as? ExchangeRateUiState.Success
+    if (successState?.showCalculator == true) {
         CalculatorBottomSheet(
             onDismiss = viewModel::onCalculatorDismiss,
             onConfirm = viewModel::onCalculatorConfirm,

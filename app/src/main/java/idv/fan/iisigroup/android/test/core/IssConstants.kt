@@ -10,8 +10,8 @@ object IssConstants {
     }
 
     object UserPreferences {
-        val DEFAULT_DARK_THEME = false
-        val DEFAULT_AUTO_SYNC_ENABLED = true
+        const val DEFAULT_DARK_THEME = false
+        const val DEFAULT_AUTO_SYNC_ENABLED = true
         val DEFAULT_SYNC_INTERVAL: SyncInterval = SyncInterval.TEN_SECONDS
         val DEFAULT_CURRENCY: Currency = Currency.USD
     }

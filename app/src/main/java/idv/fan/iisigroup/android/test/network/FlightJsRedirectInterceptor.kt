@@ -40,7 +40,7 @@ class FlightJsRedirectInterceptor : Interceptor {
         val airFlyLine = url.queryParameter("AirFlyLine") ?: return response
         val airFlyIO = url.queryParameter("AirFlyIO") ?: return response
 
-        val html = response.peekBody(Long.MAX_VALUE).string()
+        val html = response.peekBody(1_048_576L).string() // 1MB 上限，防止異常大 HTML 導致 OOM
 
         val target = conditionRegex.findAll(html)
             .firstOrNull { it.groupValues[1] == airFlyLine && it.groupValues[2] == airFlyIO }

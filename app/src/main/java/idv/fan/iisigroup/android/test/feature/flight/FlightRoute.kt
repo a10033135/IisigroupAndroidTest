@@ -46,7 +46,7 @@ fun FlightRoute(
         FlightScreen(
             uiState = uiState,
             onRetry = viewModel::loadFlights,
-                        onFilterToggle = viewModel::onFilterToggle,
+            onFilterToggle = viewModel::onFilterToggle,
             onFlightClick = viewModel::onFlightClick,
             onPullToRefresh = viewModel::pullToRefresh,
             contentPadding = innerPadding,

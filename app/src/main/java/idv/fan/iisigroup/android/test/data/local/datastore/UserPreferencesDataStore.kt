@@ -47,9 +47,9 @@ class UserPreferencesDataStore @Inject constructor(
     }
 
     companion object {
-        val DARK_THEME_KEY = booleanPreferencesKey("dark_theme")
-        val AUTO_SYNC_ENABLED_KEY = booleanPreferencesKey("auto_sync_enabled")
-        val AUTO_SYNC_INTERVAL_MS_KEY = longPreferencesKey("auto_sync_interval_ms")
-        val DEFAULT_CURRENCY_KEY = stringPreferencesKey("default_currency")
+        private val DARK_THEME_KEY = booleanPreferencesKey("dark_theme")
+        private val AUTO_SYNC_ENABLED_KEY = booleanPreferencesKey("auto_sync_enabled")
+        private val AUTO_SYNC_INTERVAL_MS_KEY = longPreferencesKey("auto_sync_interval_ms")
+        private val DEFAULT_CURRENCY_KEY = stringPreferencesKey("default_currency")
     }
 }
