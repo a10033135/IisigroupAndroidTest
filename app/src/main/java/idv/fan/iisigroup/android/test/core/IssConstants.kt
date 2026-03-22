@@ -17,6 +17,6 @@ object IssConstants {
     }
 
     object ExchangeRate {
-        const val DEFAULT_CALCULATOR_AMOUNT = 1.0
+        val DEFAULT_CALCULATOR_AMOUNT : Double? = null
     }
 }

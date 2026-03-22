@@ -13,7 +13,7 @@ data class ExchangeApiState(
 )
 
 data class CalculatorState(
-    val amount: Double = IssConstants.ExchangeRate.DEFAULT_CALCULATOR_AMOUNT,
+    val amount: Double? = IssConstants.ExchangeRate.DEFAULT_CALCULATOR_AMOUNT,
     val showCalculator: Boolean = false,
 )
 
