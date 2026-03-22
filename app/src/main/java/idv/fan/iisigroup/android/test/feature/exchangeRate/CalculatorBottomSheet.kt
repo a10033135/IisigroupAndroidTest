@@ -45,6 +45,7 @@ private enum class CalculatorKey(val label: String) {
                     onResultChange("")
                 }
             }
+
             MULTIPLY, DIVIDE, PLUS, MINUS -> {
                 val op = if (this == MULTIPLY) "*" else label
                 val base = if (result.isNotEmpty() && expression.isEmpty()) result else expression
@@ -53,6 +54,7 @@ private enum class CalculatorKey(val label: String) {
                     onResultChange("")
                 }
             }
+
             DOT -> {
                 val parts = expression.split(Regex("[+\\-*/]"))
                 val lastPart = parts.lastOrNull() ?: ""
@@ -62,6 +64,7 @@ private enum class CalculatorKey(val label: String) {
                     onResultChange("")
                 }
             }
+
             else -> {
                 val newExpr = expression + label
                 onExpressionChange(newExpr)
@@ -76,7 +79,7 @@ private enum class CalculatorKey(val label: String) {
             listOf(ONE, TWO, THREE, MULTIPLY),
             listOf(FOUR, FIVE, SIX, DIVIDE),
             listOf(SEVEN, EIGHT, NINE, MINUS),
-            listOf(ZERO, DOT, CLEAR, PLUS),
+            listOf(CLEAR, ZERO, DOT, PLUS),
         )
     }
 }
@@ -121,18 +124,6 @@ fun CalculatorBottomSheet(
                     }
                 }
             }
-
-            CalculatorButton(
-                label = "=",
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    val eval = evaluateExpression(expression)
-                    if (eval != null) {
-                        expression = formatNumber(eval)
-                        result = ""
-                    }
-                },
-            )
 
             Button(
                 onClick = {
@@ -217,10 +208,12 @@ private fun tokenize(expression: String): List<String>? {
                 while (i < expression.length && (expression[i].isDigit() || expression[i] == '.')) i++
                 tokens.add(expression.substring(start, i))
             }
+
             ch in listOf('+', '-', '*', '/') -> {
                 tokens.add(ch.toString())
                 i++
             }
+
             else -> return null
         }
     }
