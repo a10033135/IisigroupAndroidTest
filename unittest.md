@@ -169,10 +169,9 @@
 
 | # | 測試情境 | 驗證重點 |
 |---|---|---|
-| 1 | `SocketException` | 拋出 `NetworkException`；訊息含「網路異常」 |
-| 2 | `ConnectException` | 拋出 `NetworkException` |
-| 3 | `UnknownHostException` | 拋出 `NetworkException` |
-| 4 | 正常請求 | 不干預，回傳原始 Response |
+| 1 | `ConnectException` | 拋出 `NetworkException` |
+| 2 | `UnknownHostException` | 拋出 `NetworkException` |
+| 3 | 正常請求 | 不干預，回傳原始 Response |
 
 ### FlightJsRedirectInterceptor
 

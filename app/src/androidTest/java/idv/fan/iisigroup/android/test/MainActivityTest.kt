@@ -25,15 +25,27 @@ class MainActivityTest {
     }
 
     @Test
-    fun navigationItems_areDisplayed() {
-        composeTestRule.onNodeWithText("Home").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Favorites").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Profile").assertIsDisplayed()
+    fun appStartsWithFlightTabSelected() {
+        // The app starts on the flight screen — verify the flight title is displayed
+        composeTestRule.onNodeWithText("航班資訊").assertIsDisplayed()
     }
 
     @Test
-    fun clickFavorites_navigatesToFavorites() {
-        composeTestRule.onNodeWithText("Favorites").performClick()
-        composeTestRule.onNodeWithText("Favorites").assertIsDisplayed()
+    fun clickingExchangeRateTab_navigatesToExchangeRateScreen() {
+        composeTestRule.onNodeWithText("匯率").performClick()
+        composeTestRule.onNodeWithText("匯率換算").assertIsDisplayed()
+    }
+
+    @Test
+    fun clickingSettingTab_navigatesToSettingScreen() {
+        composeTestRule.onNodeWithText("設定").performClick()
+        composeTestRule.onNodeWithText("設定頁面").assertIsDisplayed()
+    }
+
+    @Test
+    fun allNavigationTabs_areDisplayed() {
+        composeTestRule.onNodeWithText("航班").assertIsDisplayed()
+        composeTestRule.onNodeWithText("匯率").assertIsDisplayed()
+        composeTestRule.onNodeWithText("設定").assertIsDisplayed()
     }
 }
