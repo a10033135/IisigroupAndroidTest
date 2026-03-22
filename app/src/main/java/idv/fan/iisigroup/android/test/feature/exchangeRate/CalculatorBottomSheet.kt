@@ -26,12 +26,68 @@ import androidx.compose.ui.unit.dp
 import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.core.formatNumber
 
-private val buttonRows = listOf(
-    listOf("1", "2", "3", "x"),
-    listOf("4", "5", "6", "/"),
-    listOf("7", "8", "9", "-"),
-    listOf("0", ".", "c", "+"),
-)
+private enum class CalculatorKey(val label: String) {
+    ONE("1"), TWO("2"), THREE("3"), MULTIPLY("x"),
+    FOUR("4"), FIVE("5"), SIX("6"), DIVIDE("/"),
+    SEVEN("7"), EIGHT("8"), NINE("9"), MINUS("-"),
+    ZERO("0"), DOT("."), CLEAR("c"), PLUS("+"),
+    EQUALS("=");
+
+    fun handle(
+        expression: String,
+        result: String,
+        onExpressionChange: (String) -> Unit,
+        onResultChange: (String) -> Unit,
+    ) {
+        when (this) {
+            CLEAR -> {
+                if (expression.isNotEmpty()) {
+                    onExpressionChange(expression.dropLast(1))
+                    onResultChange("")
+                }
+            }
+            MULTIPLY, DIVIDE, PLUS, MINUS -> {
+                val op = if (this == MULTIPLY) "*" else label
+                val base = if (result.isNotEmpty() && expression.isEmpty()) result else expression
+                if (base.isNotEmpty() && base.last() !in listOf('+', '-', '*', '/', 'x')) {
+                    onExpressionChange(base + op)
+                    onResultChange("")
+                }
+            }
+            DOT -> {
+                val parts = expression.split(Regex("[+\\-*/]"))
+                val lastPart = parts.lastOrNull() ?: ""
+                if (!lastPart.contains('.')) {
+                    val prefix = expression.ifEmpty { "0" }
+                    onExpressionChange("$prefix.")
+                    onResultChange("")
+                }
+            }
+            EQUALS -> {
+                val eval = evaluateExpression(expression)
+                if (eval != null) {
+                    onExpressionChange(formatNumber(eval))
+                    onResultChange("")
+                }
+            }
+            else -> {
+                val newExpr = expression + label
+                onExpressionChange(newExpr)
+                val eval = evaluateExpression(newExpr)
+                onResultChange(if (eval != null) formatNumber(eval) else "")
+            }
+        }
+    }
+
+    companion object {
+        val rows: List<List<CalculatorKey>> = listOf(
+            listOf(ONE, TWO, THREE, MULTIPLY),
+            listOf(FOUR, FIVE, SIX, DIVIDE),
+            listOf(SEVEN, EIGHT, NINE, MINUS),
+            listOf(ZERO, DOT, CLEAR, PLUS),
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,23 +113,17 @@ fun CalculatorBottomSheet(
         ) {
             CalculatorDisplay(expression = expression, result = result)
 
-            buttonRows.forEach { row ->
+            CalculatorKey.rows.forEach { row ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    row.forEach { label ->
+                    row.forEach { key ->
                         CalculatorButton(
-                            label = label,
+                            label = key.label,
                             modifier = Modifier.weight(1f),
                             onClick = {
-                                handleCalculatorInput(
-                                    label = label,
-                                    expression = expression,
-                                    result = result,
-                                    onExpressionChange = { expression = it },
-                                    onResultChange = { result = it },
-                                )
+                                key.handle(expression, result, { expression = it }, { result = it })
                             },
                         )
                     }
@@ -85,21 +135,19 @@ fun CalculatorBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 CalculatorButton(
-                    label = "=",
+                    label = CalculatorKey.EQUALS.label,
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val eval = evaluateExpression(expression)
-                        if (eval != null) {
-                            expression = formatNumber(eval)
-                            result = ""
-                        }
+                        CalculatorKey.EQUALS.handle(
+                            expression, result, { expression = it }, { result = it },
+                        )
                     },
                 )
             }
 
             Button(
                 onClick = {
-                    val text = if (result.isNotEmpty()) result else expression
+                    val text = result.ifEmpty { expression }
                     val amount = text.toDoubleOrNull() ?: evaluateExpression(expression) ?: 1.0
                     onConfirm(amount)
                 },
@@ -158,56 +206,13 @@ private fun CalculatorButton(
     }
 }
 
-private fun handleCalculatorInput(
-    label: String,
-    expression: String,
-    result: String,
-    onExpressionChange: (String) -> Unit,
-    onResultChange: (String) -> Unit,
-) {
-    when (label) {
-        "c" -> {
-            if (expression.isNotEmpty()) {
-                onExpressionChange(expression.dropLast(1))
-                onResultChange("")
-            }
-        }
-        in listOf("x", "/", "+", "-") -> {
-            val op = when (label) {
-                "x" -> "*"
-                else -> label
-            }
-            val base = if (result.isNotEmpty() && expression.isEmpty()) result else expression
-            if (base.isNotEmpty() && base.last() !in listOf('+', '-', '*', '/', 'x')) {
-                onExpressionChange(base + op)
-                onResultChange("")
-            }
-        }
-        "." -> {
-            val parts = expression.split(Regex("[+\\-*/]"))
-            val lastPart = parts.lastOrNull() ?: ""
-            if (!lastPart.contains('.')) {
-                val prefix = if (expression.isEmpty()) "0" else expression
-                onExpressionChange("$prefix.")
-                onResultChange("")
-            }
-        }
-        else -> {
-            val newExpr = expression + label
-            onExpressionChange(newExpr)
-            val eval = evaluateExpression(newExpr)
-            onResultChange(if (eval != null) formatNumber(eval) else "")
-        }
-    }
-}
-
 private fun evaluateExpression(expression: String): Double? {
     if (expression.isEmpty()) return null
     return try {
         val normalized = expression.replace("x", "*")
         val tokens = tokenize(normalized) ?: return null
         parseExpression(tokens)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }
@@ -265,4 +270,3 @@ private fun parseExpression(tokens: List<String>): Double? {
     }
     return result
 }
-
