@@ -147,6 +147,11 @@ class ExchangeRateViewModel @Inject constructor(
         _uiState.value = current.copy(showCalculator = false, calculatorAmount = amount)
     }
 
+    /**
+     * 此為 session 層級的臨時幣別切換，不持久化至 DataStore。
+     * 應用重啟或設定頁更改預設幣別時，將會覆蓋此臨時選擇。
+     * 若需永久變更，請透過設定頁的「預設貨幣」功能。
+     */
     fun onBaseCurrencySelected(currency: Currency) {
         currentBaseCurrency = currency
         _uiState.value = (_uiState.value as? ExchangeRateUiState.Success)

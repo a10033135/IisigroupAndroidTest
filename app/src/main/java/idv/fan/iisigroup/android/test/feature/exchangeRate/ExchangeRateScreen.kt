@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,7 +25,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,8 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import idv.fan.iisigroup.android.test.R
+import idv.fan.iisigroup.android.test.core.formatNumber
 import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.ExchangeRate
+import idv.fan.iisigroup.android.test.ui.components.CurrencyPickerDialog
 import idv.fan.iisigroup.android.test.ui.components.ExchangeRateShimmerContent
 import idv.fan.iisigroup.android.test.ui.state.ExchangeRateUiState
 
@@ -84,6 +84,7 @@ fun ExchangeRateScreen(
 
     if (uiState is ExchangeRateUiState.Success && uiState.showCurrencyPicker) {
         CurrencyPickerDialog(
+            title = stringResource(R.string.exchange_rate_picker_title),
             currentCurrency = uiState.baseCurrency,
             onDismiss = onCurrencyPickerDismiss,
             onSelected = onBaseCurrencySelected,
@@ -256,8 +257,7 @@ private fun ExchangeRateItem(
     modifier: Modifier = Modifier,
 ) {
     val displayValue = rate.rate * calculatorAmount
-    val amountLabel = if (calculatorAmount == 1.0) "1"
-    else "%.4f".format(calculatorAmount).trimEnd('0').trimEnd('.')
+    val amountLabel = formatNumber(calculatorAmount)
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -286,43 +286,3 @@ private fun ExchangeRateItem(
     }
 }
 
-@Composable
-private fun CurrencyPickerDialog(
-    currentCurrency: Currency,
-    onDismiss: () -> Unit,
-    onSelected: (Currency) -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.exchange_rate_picker_title)) },
-        text = {
-            Column {
-                Currency.entries.forEach { currency ->
-                    TextButton(
-                        onClick = { onSelected(currency) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = currency.code,
-                                fontWeight = if (currency == currentCurrency) FontWeight.Bold else FontWeight.Normal,
-                                color = if (currency == currentCurrency) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
-        },
-    )
-}

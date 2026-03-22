@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import idv.fan.iisigroup.android.test.R
+import idv.fan.iisigroup.android.test.core.formatNumber
 
 private val buttonRows = listOf(
     listOf("1", "2", "3", "x"),
@@ -265,6 +266,3 @@ private fun parseExpression(tokens: List<String>): Double? {
     return result
 }
 
-private fun formatNumber(value: Double): String =
-    if (value == value.toLong().toDouble()) value.toLong().toString()
-    else "%.4f".format(value).trimEnd('0').trimEnd('.')
