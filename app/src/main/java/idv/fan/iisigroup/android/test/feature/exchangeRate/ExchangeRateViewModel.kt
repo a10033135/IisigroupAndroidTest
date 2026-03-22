@@ -8,6 +8,7 @@ import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataSt
 import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.usecase.GetExchangeRatesUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
+import idv.fan.iisigroup.android.test.ui.state.ExchangeApiState
 import idv.fan.iisigroup.android.test.ui.state.ExchangeRateUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -83,9 +84,11 @@ class ExchangeRateViewModel @Inject constructor(
                 is ApiResult.Success -> {
                     Timber.d("Loaded ${result.data.size} rates")
                     _uiState.value = ExchangeRateUiState.Success(
-                        rates = result.data,
-                        baseCurrency = currentBaseCurrency,
-                        lastRefreshTime = currentTime(),
+                        apiState = ExchangeApiState(
+                            rates = result.data,
+                            baseCurrency = currentBaseCurrency,
+                            lastRefreshTime = currentTime(),
+                        ),
                     )
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
@@ -101,20 +104,23 @@ class ExchangeRateViewModel @Inject constructor(
         val current = _uiState.value as? ExchangeRateUiState.Success ?: return
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
-            _uiState.value = current.copy(isRefreshing = true, refreshError = null)
+            _uiState.value = current.copy(
+                apiState = current.apiState.copy(isRefreshing = true, refreshError = null),
+            )
             when (val result = getExchangeRatesUseCase(currentBaseCurrency)) {
                 is ApiResult.Success -> {
-                    _uiState.value = ExchangeRateUiState.Success(
-                        rates = result.data,
-                        baseCurrency = currentBaseCurrency,
-                        lastRefreshTime = currentTime(),
+                    _uiState.value = current.copy(
+                        apiState = ExchangeApiState(
+                            rates = result.data,
+                            baseCurrency = currentBaseCurrency,
+                            lastRefreshTime = currentTime(),
+                        ),
                     )
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
                 is ApiResult.Error -> {
                     _uiState.value = current.copy(
-                        isRefreshing = false,
-                        refreshError = result.message,
+                        apiState = current.apiState.copy(isRefreshing = false, refreshError = result.message),
                     )
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
@@ -134,17 +140,19 @@ class ExchangeRateViewModel @Inject constructor(
 
     fun onCalculatorOpen() {
         val current = _uiState.value as? ExchangeRateUiState.Success ?: return
-        _uiState.value = current.copy(showCalculator = true)
+        _uiState.value = current.copy(calculatorState = current.calculatorState.copy(showCalculator = true))
     }
 
     fun onCalculatorDismiss() {
         val current = _uiState.value as? ExchangeRateUiState.Success ?: return
-        _uiState.value = current.copy(showCalculator = false)
+        _uiState.value = current.copy(calculatorState = current.calculatorState.copy(showCalculator = false))
     }
 
     fun onCalculatorConfirm(amount: Double) {
         val current = _uiState.value as? ExchangeRateUiState.Success ?: return
-        _uiState.value = current.copy(showCalculator = false, calculatorAmount = amount)
+        _uiState.value = current.copy(
+            calculatorState = current.calculatorState.copy(amount = amount, showCalculator = false),
+        )
     }
 
     /**
@@ -154,9 +162,10 @@ class ExchangeRateViewModel @Inject constructor(
      */
     fun onBaseCurrencySelected(currency: Currency) {
         currentBaseCurrency = currency
-        _uiState.value = (_uiState.value as? ExchangeRateUiState.Success)
-            ?.copy(showCurrencyPicker = false)
-            ?: _uiState.value
+        val current = _uiState.value as? ExchangeRateUiState.Success
+        if (current != null) {
+            _uiState.value = current.copy(showCurrencyPicker = false)
+        }
         loadRates()
     }
 
@@ -166,19 +175,22 @@ class ExchangeRateViewModel @Inject constructor(
                 delay(currentAutoSyncIntervalMs)
                 val current = _uiState.value as? ExchangeRateUiState.Success ?: break
                 Timber.d("Auto-refreshing exchange rates")
-                _uiState.value = current.copy(isRefreshing = true, refreshError = null)
+                _uiState.value = current.copy(
+                    apiState = current.apiState.copy(isRefreshing = true, refreshError = null),
+                )
                 when (val result = getExchangeRatesUseCase(currentBaseCurrency)) {
                     is ApiResult.Success -> {
-                        _uiState.value = ExchangeRateUiState.Success(
-                            rates = result.data,
-                            baseCurrency = currentBaseCurrency,
-                            lastRefreshTime = currentTime(),
+                        _uiState.value = current.copy(
+                            apiState = ExchangeApiState(
+                                rates = result.data,
+                                baseCurrency = currentBaseCurrency,
+                                lastRefreshTime = currentTime(),
+                            ),
                         )
                     }
                     is ApiResult.Error -> {
                         _uiState.value = current.copy(
-                            isRefreshing = false,
-                            refreshError = result.message,
+                            apiState = current.apiState.copy(isRefreshing = false, refreshError = result.message),
                         )
                     }
                 }

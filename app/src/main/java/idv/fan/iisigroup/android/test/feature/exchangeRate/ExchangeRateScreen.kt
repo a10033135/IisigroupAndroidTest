@@ -53,7 +53,7 @@ fun ExchangeRateScreen(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
 ) {
-    val calculatorAmount = (uiState as? ExchangeRateUiState.Success)?.calculatorAmount ?: 1.0
+    val calculatorAmount = (uiState as? ExchangeRateUiState.Success)?.calculatorState?.amount ?: 1.0
     Column(modifier = modifier.padding(contentPadding)) {
         ExchangeRateUpdateInfoSection(
             uiState = uiState,
@@ -85,7 +85,7 @@ fun ExchangeRateScreen(
     if (uiState is ExchangeRateUiState.Success && uiState.showCurrencyPicker) {
         CurrencyPickerDialog(
             title = stringResource(R.string.exchange_rate_picker_title),
-            currentCurrency = uiState.baseCurrency,
+            currentCurrency = uiState.apiState.baseCurrency,
             onDismiss = onCurrencyPickerDismiss,
             onSelected = onBaseCurrencySelected,
         )
@@ -101,11 +101,11 @@ private fun ExchangeRateUpdateInfoSection(
         is ExchangeRateUiState.Loading -> ExchangeRateInfoText(stringResource(R.string.common_no_data))
         is ExchangeRateUiState.Error -> ExchangeRateInfoError(uiState.message)
         is ExchangeRateUiState.Success -> when {
-            uiState.isRefreshing -> ExchangeRateRefreshingBanner()
-            uiState.refreshError != null -> ExchangeRateInfoError(uiState.refreshError)
+            uiState.apiState.isRefreshing -> ExchangeRateRefreshingBanner()
+            uiState.apiState.refreshError != null -> ExchangeRateInfoError(uiState.apiState.refreshError)
             else -> ExchangeRateSuccessInfo(
-                baseCurrency = uiState.baseCurrency,
-                lastRefreshTime = uiState.lastRefreshTime,
+                baseCurrency = uiState.apiState.baseCurrency,
+                lastRefreshTime = uiState.apiState.lastRefreshTime,
                 onClick = onBaseCurrencyClick,
             )
         }
@@ -196,11 +196,11 @@ private fun ExchangeRateSuccessContent(
     val columns = if (isLandscape) GridCells.Fixed(2) else GridCells.Fixed(1)
 
     PullToRefreshBox(
-        isRefreshing = uiState.isRefreshing,
+        isRefreshing = uiState.apiState.isRefreshing,
         onRefresh = onPullToRefresh,
         modifier = modifier,
     ) {
-        if (uiState.rates.isEmpty()) {
+        if (uiState.apiState.rates.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.exchange_rate_empty),
@@ -216,10 +216,10 @@ private fun ExchangeRateSuccessContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(uiState.rates) { rate ->
+                items(uiState.apiState.rates) { rate ->
                     ExchangeRateItem(
                         rate = rate,
-                        baseCurrency = uiState.baseCurrency,
+                        baseCurrency = uiState.apiState.baseCurrency,
                         calculatorAmount = calculatorAmount,
                     )
                 }
