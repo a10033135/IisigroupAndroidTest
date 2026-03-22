@@ -60,10 +60,20 @@ private fun ExchangeRateShimmerItem() {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            Box(modifier = Modifier.width(60.dp).height(20.dp).background(brush))
-            Box(modifier = Modifier.width(100.dp).height(16.dp).background(brush))
+            Box(
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(20.dp)
+                    .background(brush)
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(16.dp)
+                    .background(brush)
+            )
         }
     }
 }
