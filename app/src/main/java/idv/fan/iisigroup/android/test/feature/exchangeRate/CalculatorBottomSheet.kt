@@ -30,8 +30,7 @@ private enum class CalculatorKey(val label: String) {
     ONE("1"), TWO("2"), THREE("3"), MULTIPLY("x"),
     FOUR("4"), FIVE("5"), SIX("6"), DIVIDE("/"),
     SEVEN("7"), EIGHT("8"), NINE("9"), MINUS("-"),
-    ZERO("0"), DOT("."), CLEAR("c"), PLUS("+"),
-    EQUALS("=");
+    ZERO("0"), DOT("."), CLEAR("c"), PLUS("+");
 
     fun handle(
         expression: String,
@@ -60,13 +59,6 @@ private enum class CalculatorKey(val label: String) {
                 if (!lastPart.contains('.')) {
                     val prefix = expression.ifEmpty { "0" }
                     onExpressionChange("$prefix.")
-                    onResultChange("")
-                }
-            }
-            EQUALS -> {
-                val eval = evaluateExpression(expression)
-                if (eval != null) {
-                    onExpressionChange(formatNumber(eval))
                     onResultChange("")
                 }
             }
@@ -128,21 +120,6 @@ fun CalculatorBottomSheet(
                         )
                     }
                 }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                CalculatorButton(
-                    label = CalculatorKey.EQUALS.label,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        CalculatorKey.EQUALS.handle(
-                            expression, result, { expression = it }, { result = it },
-                        )
-                    },
-                )
             }
 
             Button(
