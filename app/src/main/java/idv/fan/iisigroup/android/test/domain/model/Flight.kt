@@ -12,6 +12,6 @@ data class Flight(
     val upAirportName: String?,
     val airPlaneType: String?,
     val airBoardingGate: String?,
-    val airFlyStatus: String?,
+    val airFlyStatus: FlightStatus,
     val airFlyDelayCause: String?,
 )
