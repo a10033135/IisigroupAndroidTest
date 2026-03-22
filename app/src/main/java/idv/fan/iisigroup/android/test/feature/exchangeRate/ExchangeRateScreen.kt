@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -50,8 +51,9 @@ fun ExchangeRateScreen(
     onCurrencyPickerDismiss: () -> Unit,
     onBaseCurrencySelected: (Currency) -> Unit,
     onPullToRefresh: () -> Unit,
-    contentPadding: PaddingValues = PaddingValues(),
+    onCalculatorClick: () -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     val calculatorAmount = (uiState as? ExchangeRateUiState.Success)?.calculatorState?.amount ?: 1.0
     Column(modifier = modifier.padding(contentPadding)) {
@@ -59,6 +61,14 @@ fun ExchangeRateScreen(
             uiState = uiState,
             onBaseCurrencyClick = onBaseCurrencyClick,
         )
+
+        if (uiState is ExchangeRateUiState.Success) {
+            ExchangeRateCalculatorBanner(
+                amount = calculatorAmount,
+                baseCurrencyCode = uiState.apiState.baseCurrency.code,
+                onClick = onCalculatorClick,
+            )
+        }
 
         Box(modifier = Modifier.weight(1f)) {
             when (uiState) {
@@ -145,6 +155,42 @@ private fun ExchangeRateInfoError(message: String) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onErrorContainer,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+    }
+}
+
+@Composable
+private fun ExchangeRateCalculatorBanner(
+    amount: Double,
+    baseCurrencyCode: String,
+    onClick: () -> Unit,
+) {
+    val isCalculatorActive = amount != 1.0
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = if (isCalculatorActive) {
+                "${formatNumber(amount)} $baseCurrencyCode"
+            } else {
+                stringResource(R.string.exchange_rate_calculator_welcome)
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (isCalculatorActive) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+        )
+        Icon(
+            imageVector = Icons.Default.Create,
+            contentDescription = stringResource(R.string.exchange_rate_calculator),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

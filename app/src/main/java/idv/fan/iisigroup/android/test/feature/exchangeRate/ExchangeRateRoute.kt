@@ -46,6 +46,7 @@ fun ExchangeRateRoute(
             onCurrencyPickerDismiss = viewModel::onCurrencyPickerDismiss,
             onBaseCurrencySelected = viewModel::onBaseCurrencySelected,
             onPullToRefresh = viewModel::pullToRefresh,
+            onCalculatorClick = viewModel::onCalculatorOpen,
             contentPadding = innerPadding,
         )
     }
