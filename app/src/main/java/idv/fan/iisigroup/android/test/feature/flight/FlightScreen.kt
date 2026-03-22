@@ -76,6 +76,7 @@ fun FlightScreen(
                         .fillMaxSize()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
+
                 is FlightUiState.Success -> FlightSuccessContent(
                     flights = uiState.apiState.flights,
                     isRefreshing = uiState.apiState.isRefreshing,
@@ -83,6 +84,7 @@ fun FlightScreen(
                     onFlightClick = onFlightClick,
                     modifier = Modifier.fillMaxSize(),
                 )
+
                 is FlightUiState.Error -> FlightErrorContent(
                     message = uiState.message,
                     onRetry = onRetry,
@@ -268,26 +270,23 @@ private fun FlightListItem(
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Row {
-                    flight.expectTime?.let {
-                        Text(
-                            text = stringResource(R.string.flight_expect_time, it),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    flight.realTime?.let {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.flight_actual_time, it),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-                flight.airBoardingGate?.takeIf { it.isNotEmpty() }?.let {
                     Text(
-                        text = stringResource(R.string.flight_boarding_gate, it),
+                        text = stringResource(R.string.flight_expect_time, (flight.expectTime ?: stringResource(R.string.flight_unknow))),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.flight_actual_time, (flight.realTime ?: stringResource(R.string.flight_unknow))),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
+                Text(
+                    text = stringResource(
+                        R.string.flight_boarding_gate,
+                        flight.airBoardingGate?.takeIf { it.isNotEmpty() } ?: stringResource(R.string.flight_unknow)
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
             FlightStatusChip(status = flight.airFlyStatus, modifier = Modifier.align(Alignment.Top))
         }

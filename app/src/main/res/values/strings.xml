@@ -60,4 +60,5 @@
     <string name="flight_status_delayed">延誤</string>
     <string name="flight_status_cancelled">取消</string>
     <string name="flight_status_departed">起飛</string>
+    <string name="flight_unknow">尚未提供</string>
 </resources>
