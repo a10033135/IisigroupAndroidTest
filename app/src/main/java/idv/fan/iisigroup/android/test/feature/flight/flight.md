@@ -19,6 +19,7 @@
       - 橫向轉為一行兩列
       - 下拉可以打 API 即時刷新資訊
       - 點擊項目即開啟外開瀏覽器至 airLineUrl ，若沒有網址則顯示 Toast ：「此航班沒有提供連結」
+      - UiState 容拆成 flightApiResponse 跟用戶操作行為的 uiState ，讓 API 行為與用戶行為彼此不會互相影響，labelFilter 因為資料來源為 ApiResponse 所以算在 ApiResponse UiState 內
     - Failed：
       - API 錯誤時顯示錯誤訊息及重新嘗試的按鈕
 

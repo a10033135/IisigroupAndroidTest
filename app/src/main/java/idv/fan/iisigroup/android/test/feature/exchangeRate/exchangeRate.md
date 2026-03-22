@@ -6,11 +6,13 @@
         - Loading：尚未取得資料
         - Success：顯示最後一次刷新時間及目前的預設貨幣代碼，點擊時可以切換預設貨幣代碼，重新打 API 
         - Failed：錯誤資訊
+    - 計算機輸入結果：預設為文字「歡迎使用計算機 $編輯 icon」，點擊後顯示 CalculatorBottomSheet，當 CalulatorBottomSheet 有計算結果時，則顯示「$數字 $當前幣值」
     - 內容
         - Loading：畫面空白，以 Shimmer 顯示讀取狀態
         - Success：
-            - LoadingProgress 消失顯示貨幣代碼及匯率，成功後需每十秒需刷新一次，每十秒刷新時需在畫面顯示 LoadingProgress 文字撰寫刷新中，刷新失敗時在頁面最上方，有個獨立區塊顯示錯誤訊息，但不進入錯誤畫面
-            - 請把 ExchangeRateViewModel 的 UiState 內容拆成 exchangeApiResponse 跟 CalculatorButtonSheet ，讓 API 行為與 CalculatorButtonSheet 彼此不會互相影響
+            - LoadingProgress 消失顯示「貨幣代碼/匯率」，當使用者已透過 CalculatorBottomSheet 輸入貨幣金額後，改為顯示「貨幣代碼/計算金額/匯率」
+            - 成功後需每十秒需刷新一次，每十秒刷新時需在畫面顯示 LoadingProgress 文字撰寫刷新中，刷新失敗時在頁面最上方，有個獨立區塊顯示錯誤訊息，但不進入錯誤畫面
+            -  ExchangeRateViewModel 的 UiState 內容拆成 exchangeApiResponse 跟 CalculatorButtonSheet ，讓 API 行為與 CalculatorButtonSheet 彼此不會互相影響
             - Empty 需顯示目前無任何匯率資訊
             - 橫向轉為一行兩列
             - 下拉可以打 API 即時刷新資訊
@@ -26,7 +28,6 @@
       - 規則：
         - 使用者點擊按鈕時開始使用計算機，會記錄於輸入窗
         - 點擊 c 可以清除上一動作
-        - 點擊 = 得到結果時清除計算公式，只顯示結果
         - 點擊「輸入」按鈕時記錄下來顯示於原本頁面，並根據輸入的金額代表基準貨幣，在各國匯率中顯示對應的金額
 
 ### API 說明
