@@ -64,7 +64,7 @@ fun FlightScreen(
         if (uiState is FlightUiState.Success) {
             FlightFilterSection(
                 availableFilters = uiState.apiState.availableFilters,
-                selectedFilters = uiState.userState.selectedFilters,
+                selectedFilters = uiState.filterState.selectedFilters,
                 onFilterToggle = onFilterToggle,
             )
         }

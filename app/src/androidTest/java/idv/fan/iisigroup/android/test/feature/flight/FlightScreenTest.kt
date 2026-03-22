@@ -3,7 +3,6 @@ package idv.fan.iisigroup.android.test.feature.flight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -11,7 +10,7 @@ import idv.fan.iisigroup.android.test.domain.model.Flight
 import idv.fan.iisigroup.android.test.domain.model.FlightStatus
 import idv.fan.iisigroup.android.test.ui.state.FlightApiState
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
-import idv.fan.iisigroup.android.test.ui.state.FlightUserState
+import idv.fan.iisigroup.android.test.ui.state.FlightFilterState
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -54,7 +53,7 @@ class FlightScreenTest {
             isRefreshing = isRefreshing,
             refreshError = refreshError,
         ),
-        userState = FlightUserState(selectedFilters = selectedFilters),
+        filterState = FlightFilterState(selectedFilters = selectedFilters),
     )
 
     @Test

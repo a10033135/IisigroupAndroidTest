@@ -11,7 +11,7 @@ data class FlightApiState(
     val refreshError: String? = null,
 )
 
-data class FlightUserState(
+data class FlightFilterState(
     val selectedFilters: Set<FlightFilterOption> = emptySet(),
 )
 
@@ -19,7 +19,7 @@ sealed class FlightUiState {
     data object Loading : FlightUiState()
     data class Success(
         val apiState: FlightApiState,
-        val userState: FlightUserState = FlightUserState(),
+        val filterState: FlightFilterState = FlightFilterState(),
     ) : FlightUiState()
     data class Error(val message: String) : FlightUiState()
 }

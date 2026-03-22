@@ -21,7 +21,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -144,7 +143,7 @@ class FlightViewModelTest {
         // Updated flights should be shown (filter still applied but Tokyo matches)
         assertTrue(state.apiState.flights.isNotEmpty())
         // userState selectedFilters should be preserved
-        assertTrue(state.userState.selectedFilters.contains(filter))
+        assertTrue(state.filterState.selectedFilters.contains(filter))
     }
 
     // -------------------------------------------------------------------------
@@ -172,7 +171,7 @@ class FlightViewModelTest {
         assertTrue(state is FlightUiState.Success)
         val success = state as FlightUiState.Success
         assertEquals("Refresh failed", success.apiState.refreshError)
-        assertTrue(success.userState.selectedFilters.contains(filter))
+        assertTrue(success.filterState.selectedFilters.contains(filter))
     }
 
     // -------------------------------------------------------------------------
@@ -190,7 +189,7 @@ class FlightViewModelTest {
         viewModel.onFilterToggle(filter)
 
         val state = viewModel.uiState.value as FlightUiState.Success
-        assertTrue(state.userState.selectedFilters.contains(filter))
+        assertTrue(state.filterState.selectedFilters.contains(filter))
     }
 
     // -------------------------------------------------------------------------
@@ -209,7 +208,7 @@ class FlightViewModelTest {
         viewModel.onFilterToggle(filter) // remove
 
         val state = viewModel.uiState.value as FlightUiState.Success
-        assertTrue(state.userState.selectedFilters.isEmpty())
+        assertTrue(state.filterState.selectedFilters.isEmpty())
     }
 
     // -------------------------------------------------------------------------
@@ -311,13 +310,13 @@ class FlightViewModelTest {
 
         viewModel.onFilterToggle(FlightFilterOption.Arrived)
         val stateWithFilter = viewModel.uiState.value as FlightUiState.Success
-        assertTrue(stateWithFilter.userState.selectedFilters.isNotEmpty())
+        assertTrue(stateWithFilter.filterState.selectedFilters.isNotEmpty())
 
         viewModel.loadFlights()
         advanceUntilIdle()
 
         val stateAfterReload = viewModel.uiState.value as FlightUiState.Success
-        assertTrue(stateAfterReload.userState.selectedFilters.isEmpty())
+        assertTrue(stateAfterReload.filterState.selectedFilters.isEmpty())
     }
 
     // -------------------------------------------------------------------------

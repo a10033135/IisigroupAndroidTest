@@ -14,7 +14,7 @@ import idv.fan.iisigroup.android.test.domain.usecase.GetFlightsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.FlightApiState
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
-import idv.fan.iisigroup.android.test.ui.state.FlightUserState
+import idv.fan.iisigroup.android.test.ui.state.FlightFilterState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,7 +44,6 @@ class FlightViewModel @Inject constructor(
     val events: SharedFlow<FlightEvent> = _events.asSharedFlow()
 
     private var allFlights: List<Flight> = emptyList()
-    private var currentFilters: Set<FlightFilterOption> = emptySet()
 
     private var currentAutoSyncEnabled: Boolean = IssConstants.UserPreferences.DEFAULT_AUTO_SYNC_ENABLED
     private var currentAutoSyncIntervalMs: Long = IssConstants.UserPreferences.DEFAULT_SYNC_INTERVAL.ms
@@ -78,7 +77,6 @@ class FlightViewModel @Inject constructor(
     fun loadFlights() {
         loadJob?.cancel()
         refreshJob?.cancel()
-        currentFilters = emptySet()
         loadJob = viewModelScope.launch {
             Timber.d("Loading flights")
             _uiState.value = FlightUiState.Loading
@@ -89,6 +87,7 @@ class FlightViewModel @Inject constructor(
                     _uiState.value = buildSuccessState(currentTime())
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
+
                 is ApiResult.Error -> {
                     Timber.e("Load failed: ${result.message}")
                     _uiState.value = FlightUiState.Error(result.message)
@@ -110,6 +109,7 @@ class FlightViewModel @Inject constructor(
                     _uiState.value = buildSuccessState(currentTime(), current)
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
+
                 is ApiResult.Error -> {
                     _uiState.value = current.copy(
                         apiState = current.apiState.copy(isRefreshing = false, refreshError = result.message),
@@ -121,11 +121,12 @@ class FlightViewModel @Inject constructor(
     }
 
     fun onFilterToggle(filter: FlightFilterOption) {
-        currentFilters = if (filter in currentFilters) currentFilters - filter else currentFilters + filter
-        val current = _uiState.value as? FlightUiState.Success ?: return
-        _uiState.value = current.copy(
-            apiState = current.apiState.copy(flights = applyFilters()),
-            userState = FlightUserState(selectedFilters = currentFilters),
+        val uiState = _uiState.value as? FlightUiState.Success ?: return
+        val current = uiState.filterState.selectedFilters
+        val toggleFilter = if (filter in current) current - filter else current + filter
+        _uiState.value = uiState.copy(
+            apiState = uiState.apiState.copy(flights = applyFilters(toggleFilter)),
+            filterState = FlightFilterState(selectedFilters = toggleFilter),
         )
     }
 
@@ -153,6 +154,7 @@ class FlightViewModel @Inject constructor(
                         allFlights = result.data
                         _uiState.value = buildSuccessState(currentTime(), current)
                     }
+
                     is ApiResult.Error -> {
                         _uiState.value = current.copy(
                             apiState = current.apiState.copy(isRefreshing = false, refreshError = result.message),
@@ -172,7 +174,7 @@ class FlightViewModel @Inject constructor(
             availableFilters = buildAvailableFilters(),
             lastRefreshTime = refreshTime,
         ),
-        userState = current?.userState ?: FlightUserState(),
+        filterState = current?.filterState ?: FlightFilterState(),
     )
 
     private fun buildAvailableFilters(): List<FlightFilterOption> {
@@ -184,10 +186,10 @@ class FlightViewModel @Inject constructor(
         return listOf(FlightFilterOption.Arrived) + regions
     }
 
-    private fun applyFilters(): List<Flight> {
-        if (currentFilters.isEmpty()) return allFlights
+    private fun applyFilters(filters: Set<FlightFilterOption> = emptySet()): List<Flight> {
+        if (filters.isEmpty()) return allFlights
         return allFlights.filter { flight ->
-            currentFilters.any { filter ->
+            filters.any { filter ->
                 when (filter) {
                     is FlightFilterOption.Arrived -> flight.airFlyStatus == FlightStatus.ARRIVED
                     is FlightFilterOption.Region -> flight.upAirportName == filter.airportName
