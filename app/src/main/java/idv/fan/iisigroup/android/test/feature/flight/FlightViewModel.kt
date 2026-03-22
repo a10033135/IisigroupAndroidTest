@@ -9,6 +9,7 @@ import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.data.local.datastore.UserPreferencesDataStore
 import idv.fan.iisigroup.android.test.core.IssConstants
 import idv.fan.iisigroup.android.test.domain.model.Flight
+import idv.fan.iisigroup.android.test.domain.model.FlightStatus
 import idv.fan.iisigroup.android.test.domain.usecase.GetFlightsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
@@ -180,7 +181,7 @@ class FlightViewModel @Inject constructor(
         return allFlights.filter { flight ->
             currentFilters.any { filter ->
                 when (filter) {
-                    is FlightFilterOption.Arrived -> flight.airFlyStatus == "抵達"
+                    is FlightFilterOption.Arrived -> flight.airFlyStatus == FlightStatus.ARRIVED
                     is FlightFilterOption.Region -> flight.upAirportName == filter.airportName
                 }
             }

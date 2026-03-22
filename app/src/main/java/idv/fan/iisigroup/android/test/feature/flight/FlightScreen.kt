@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.domain.model.Flight
+import idv.fan.iisigroup.android.test.domain.model.FlightStatus
 import idv.fan.iisigroup.android.test.ui.components.FlightShimmerContent
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
 import idv.fan.iisigroup.android.test.ui.theme.FlightStatusArrived
@@ -288,20 +289,27 @@ private fun FlightListItem(
                     )
                 }
             }
-            FlightStatusChip(status = flight.airFlyStatus)
+            FlightStatusChip(status = flight.airFlyStatus, modifier = Modifier.align(Alignment.Top))
         }
     }
 }
 
 @Composable
-private fun FlightStatusChip(status: String?, modifier: Modifier = Modifier) {
-    if (status.isNullOrEmpty()) return
+private fun FlightStatusChip(status: FlightStatus, modifier: Modifier = Modifier) {
+    if (status == FlightStatus.UNKNOWN) return
     val containerColor = when (status) {
-        "抵達" -> FlightStatusArrived
-        "延誤" -> FlightStatusDelayed
-        "取消" -> FlightStatusCancelled
-        "起飛" -> FlightStatusDeparted
-        else -> FlightStatusDefault
+        FlightStatus.ARRIVED -> FlightStatusArrived
+        FlightStatus.DELAYED -> FlightStatusDelayed
+        FlightStatus.CANCELLED -> FlightStatusCancelled
+        FlightStatus.DEPARTED -> FlightStatusDeparted
+        FlightStatus.UNKNOWN -> FlightStatusDefault
+    }
+    val label = when (status) {
+        FlightStatus.ARRIVED -> stringResource(R.string.flight_status_arrived)
+        FlightStatus.DELAYED -> stringResource(R.string.flight_status_delayed)
+        FlightStatus.CANCELLED -> stringResource(R.string.flight_status_cancelled)
+        FlightStatus.DEPARTED -> stringResource(R.string.flight_status_departed)
+        FlightStatus.UNKNOWN -> ""
     }
     Surface(
         modifier = modifier,
@@ -309,7 +317,7 @@ private fun FlightStatusChip(status: String?, modifier: Modifier = Modifier) {
         shape = MaterialTheme.shapes.small,
     ) {
         Text(
-            text = status,
+            text = label,
             style = MaterialTheme.typography.labelSmall,
             color = Color.White,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
