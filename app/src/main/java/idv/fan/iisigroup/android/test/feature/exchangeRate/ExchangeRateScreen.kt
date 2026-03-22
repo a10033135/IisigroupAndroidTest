@@ -256,8 +256,8 @@ private fun ExchangeRateItem(
     calculatorAmount: Double,
     modifier: Modifier = Modifier,
 ) {
+    val isCalculatorActive = calculatorAmount != 1.0
     val displayValue = rate.rate * calculatorAmount
-    val amountLabel = formatNumber(calculatorAmount)
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -276,11 +276,17 @@ private fun ExchangeRateItem(
                     text = "%.4f".format(displayValue),
                     style = MaterialTheme.typography.bodyLarge,
                 )
-                Text(
-                    text = stringResource(R.string.exchange_rate_per, amountLabel, baseCurrency.code),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                if (isCalculatorActive) {
+                    Text(
+                        text = stringResource(
+                            R.string.exchange_rate_per,
+                            formatNumber(calculatorAmount),
+                            baseCurrency.code,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
