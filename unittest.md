@@ -50,7 +50,8 @@
 
 ### ExchangeRateViewModel
 
-**測試檔案：** `src/test/.../feature/exchangeRate/ExchangeRateViewModelTest.kt`
+**測試檔案：** `src/test/.../feature/exchangeRate/ExchangeRat
+eViewModelTest.kt`
 
 | # | 測試情境 | 前置條件 | 驗證重點 |
 |---|---|---|---|
@@ -172,16 +173,6 @@
 | 1 | `ConnectException` | 拋出 `NetworkException` |
 | 2 | `UnknownHostException` | 拋出 `NetworkException` |
 | 3 | 正常請求 | 不干預，回傳原始 Response |
-
-### FlightJsRedirectInterceptor
-
-**測試檔案：** `src/test/.../network/FlightJsRedirectInterceptorTest.kt`
-
-| # | 測試情境 | 驗證重點 |
-|---|---|---|
-| 1 | HTML 回應含 JS redirect URL | 解析出正確的 JSON URL，發出第二次請求 |
-| 2 | HTML 回應不含 redirect | 不發出第二次請求，直接回傳原始 Response |
-| 3 | regex 正確提取 URL | URL 格式符合預期 |
 
 ---
 
