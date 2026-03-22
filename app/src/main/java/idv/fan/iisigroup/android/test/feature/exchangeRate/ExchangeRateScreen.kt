@@ -1,6 +1,7 @@
 package idv.fan.iisigroup.android.test.feature.exchangeRate
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,8 @@ import idv.fan.iisigroup.android.test.ui.state.ExchangeRateUiState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExchangeRateScreen(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     uiState: ExchangeRateUiState,
     onRetry: () -> Unit,
     onBaseCurrencyClick: () -> Unit,
@@ -52,23 +55,14 @@ fun ExchangeRateScreen(
     onBaseCurrencySelected: (Currency) -> Unit,
     onPullToRefresh: () -> Unit,
     onCalculatorClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
+    onCalculatorDismiss: () -> Unit,
+    onCalculatorConfirm: (Double) -> Unit,
 ) {
-    val calculatorAmount = (uiState as? ExchangeRateUiState.Success)?.calculatorState?.amount ?: 1.0
     Column(modifier = modifier.padding(contentPadding)) {
         ExchangeRateUpdateInfoSection(
             uiState = uiState,
             onBaseCurrencyClick = onBaseCurrencyClick,
         )
-
-        if (uiState is ExchangeRateUiState.Success) {
-            ExchangeRateCalculatorBanner(
-                amount = calculatorAmount,
-                baseCurrencyCode = uiState.apiState.baseCurrency.code,
-                onClick = onCalculatorClick,
-            )
-        }
 
         Box(modifier = Modifier.weight(1f)) {
             when (uiState) {
@@ -77,12 +71,23 @@ fun ExchangeRateScreen(
                         .fillMaxSize()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
-                is ExchangeRateUiState.Success -> ExchangeRateSuccessContent(
-                    uiState = uiState,
-                    calculatorAmount = calculatorAmount,
-                    onPullToRefresh = onPullToRefresh,
-                    modifier = Modifier.fillMaxSize(),
-                )
+
+                is ExchangeRateUiState.Success -> {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ExchangeRateCalculatorBanner(
+                            amount = uiState.calculatorState.amount,
+                            baseCurrencyCode = uiState.apiState.baseCurrency.code,
+                            onClick = onCalculatorClick,
+                        )
+                        ExchangeRateSuccessContent(
+                            uiState = uiState,
+                            calculatorAmount = uiState.calculatorState.amount,
+                            onPullToRefresh = onPullToRefresh,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                }
+
                 is ExchangeRateUiState.Error -> ExchangeRateErrorContent(
                     message = uiState.message,
                     onRetry = onRetry,
@@ -100,6 +105,14 @@ fun ExchangeRateScreen(
             onSelected = onBaseCurrencySelected,
         )
     }
+
+    if (uiState is ExchangeRateUiState.Success && uiState.calculatorState.showCalculator) {
+        CalculatorBottomSheet(
+            onDismiss = onCalculatorDismiss,
+            onConfirm = onCalculatorConfirm,
+        )
+    }
+
 }
 
 @Composable
@@ -161,15 +174,16 @@ private fun ExchangeRateInfoError(message: String) {
 
 @Composable
 private fun ExchangeRateCalculatorBanner(
-    amount: Double,
+    amount: Double? = null,
     baseCurrencyCode: String,
     onClick: () -> Unit,
 ) {
-    val isCalculatorActive = amount != 1.0
+    val isCalculatorActive = amount != null
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -180,17 +194,14 @@ private fun ExchangeRateCalculatorBanner(
             } else {
                 stringResource(R.string.exchange_rate_calculator_welcome)
             },
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (isCalculatorActive) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primaryContainer
         )
         Icon(
             imageVector = Icons.Default.Create,
             contentDescription = stringResource(R.string.exchange_rate_calculator),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.colorScheme.primaryContainer,
         )
     }
 }
@@ -234,7 +245,7 @@ private fun ExchangeRateSuccessInfo(
 @Composable
 private fun ExchangeRateSuccessContent(
     uiState: ExchangeRateUiState.Success,
-    calculatorAmount: Double,
+    calculatorAmount: Double?,
     onPullToRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -259,7 +270,7 @@ private fun ExchangeRateSuccessContent(
                 columns = columns,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(uiState.apiState.rates) { rate ->
@@ -299,11 +310,9 @@ private fun ExchangeRateErrorContent(
 private fun ExchangeRateItem(
     rate: ExchangeRate,
     baseCurrency: Currency,
-    calculatorAmount: Double,
+    calculatorAmount: Double?,
     modifier: Modifier = Modifier,
 ) {
-    val isCalculatorActive = calculatorAmount != 1.0
-    val displayValue = rate.rate * calculatorAmount
     Card(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -316,23 +325,22 @@ private fun ExchangeRateItem(
                 text = rate.currency.code,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
             Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "%.4f".format(displayValue),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                if (isCalculatorActive) {
+
+                calculatorAmount?.let {
+                    val finalAmount = "%.4f".format(it * rate.rate)
                     Text(
-                        text = stringResource(
-                            R.string.exchange_rate_per,
-                            formatNumber(calculatorAmount),
-                            baseCurrency.code,
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = "$finalAmount ${rate.currency.code}",
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                 }
+                Text(
+                    text = "1 ${baseCurrency.code} 等於 ${formatNumber(rate.rate)} ${rate.currency.code}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

@@ -27,35 +27,19 @@ fun ExchangeRateRoute(
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.title_exchange_rate)) }) },
-        floatingActionButton = {
-            if (uiState is ExchangeRateUiState.Success) {
-                FloatingActionButton(onClick = viewModel::onCalculatorOpen) {
-                    Icon(
-                        imageVector = Icons.Default.Create,
-                        contentDescription = stringResource(R.string.exchange_rate_calculator),
-                    )
-                }
-            }
-        },
         modifier = modifier,
     ) { innerPadding ->
         ExchangeRateScreen(
             uiState = uiState,
+            contentPadding = innerPadding,
             onRetry = viewModel::loadRates,
             onBaseCurrencyClick = viewModel::onBaseCurrencyClick,
             onCurrencyPickerDismiss = viewModel::onCurrencyPickerDismiss,
             onBaseCurrencySelected = viewModel::onBaseCurrencySelected,
             onPullToRefresh = viewModel::pullToRefresh,
             onCalculatorClick = viewModel::onCalculatorOpen,
-            contentPadding = innerPadding,
-        )
-    }
-
-    val successState = uiState as? ExchangeRateUiState.Success
-    if (successState?.calculatorState?.showCalculator == true) {
-        CalculatorBottomSheet(
-            onDismiss = viewModel::onCalculatorDismiss,
-            onConfirm = viewModel::onCalculatorConfirm,
+            onCalculatorDismiss = viewModel::onCalculatorDismiss,
+            onCalculatorConfirm = viewModel::onCalculatorConfirm,
         )
     }
 }
