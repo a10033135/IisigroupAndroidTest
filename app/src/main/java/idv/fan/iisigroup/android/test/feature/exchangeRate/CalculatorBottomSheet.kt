@@ -122,6 +122,18 @@ fun CalculatorBottomSheet(
                 }
             }
 
+            CalculatorButton(
+                label = "=",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    val eval = evaluateExpression(expression)
+                    if (eval != null) {
+                        expression = formatNumber(eval)
+                        result = ""
+                    }
+                },
+            )
+
             Button(
                 onClick = {
                     val text = result.ifEmpty { expression }
