@@ -17,6 +17,12 @@
 
 1. Clone 專案
 2. 在 `local.properties` 設定 `EXCHANGE_RATE_API_KEY`（或確認 `app/build.gradle.kts` 中已設定）
+
+```bash
+# Exchange Rate API Key (from https://www.exchangerate-api.com)
+EXCHANGE_RATE_API_KEY=${API_KEY}
+```
+
 3. 使用 Android Studio 執行，或：
 
 ```bash
