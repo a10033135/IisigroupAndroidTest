@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -19,7 +18,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import idv.fan.iisigroup.android.test.R
 import idv.fan.iisigroup.android.test.domain.model.Currency
 import idv.fan.iisigroup.android.test.domain.model.SyncInterval
+import idv.fan.iisigroup.android.test.ui.components.CurrencyPickerDialog
 import idv.fan.iisigroup.android.test.ui.state.SettingUiState
 
 @Composable
@@ -77,8 +76,9 @@ fun SettingScreen(
     }
 
     if (showCurrencyPicker) {
-        SettingCurrencyPickerDialog(
-            current = uiState.defaultCurrency,
+        CurrencyPickerDialog(
+            title = stringResource(R.string.setting_currency_picker_title),
+            currentCurrency = uiState.defaultCurrency,
             onDismiss = { showCurrencyPicker = false },
             onSelected = { currency ->
                 onDefaultCurrencyChange(currency)
@@ -195,43 +195,3 @@ private fun SettingDefaultCurrencyItem(
     )
 }
 
-@Composable
-private fun SettingCurrencyPickerDialog(
-    current: Currency,
-    onDismiss: () -> Unit,
-    onSelected: (Currency) -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.setting_currency_picker_title)) },
-        text = {
-            Column {
-                Currency.entries.forEach { currency ->
-                    TextButton(
-                        onClick = { onSelected(currency) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = currency.code,
-                                fontWeight = if (currency == current) FontWeight.Bold else FontWeight.Normal,
-                                color = if (currency == current) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
-        },
-    )
-}
