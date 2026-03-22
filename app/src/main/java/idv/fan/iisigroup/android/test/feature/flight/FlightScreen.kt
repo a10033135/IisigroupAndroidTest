@@ -63,8 +63,8 @@ fun FlightScreen(
 
         if (uiState is FlightUiState.Success) {
             FlightFilterSection(
-                availableFilters = uiState.availableFilters,
-                selectedFilters = uiState.selectedFilters,
+                availableFilters = uiState.apiState.availableFilters,
+                selectedFilters = uiState.userState.selectedFilters,
                 onFilterToggle = onFilterToggle,
             )
         }
@@ -77,8 +77,8 @@ fun FlightScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
                 is FlightUiState.Success -> FlightSuccessContent(
-                    flights = uiState.flights,
-                    isRefreshing = uiState.isRefreshing,
+                    flights = uiState.apiState.flights,
+                    isRefreshing = uiState.apiState.isRefreshing,
                     onPullToRefresh = onPullToRefresh,
                     onFlightClick = onFlightClick,
                     modifier = Modifier.fillMaxSize(),
@@ -99,9 +99,9 @@ private fun FlightUpdateInfoSection(uiState: FlightUiState) {
         is FlightUiState.Loading -> FlightUpdateInfoText(stringResource(R.string.common_no_data))
         is FlightUiState.Error -> FlightUpdateInfoError(uiState.message)
         is FlightUiState.Success -> when {
-            uiState.isRefreshing -> FlightRefreshingBanner()
-            uiState.refreshError != null -> FlightUpdateInfoError(uiState.refreshError)
-            else -> FlightUpdateInfoText(stringResource(R.string.common_last_update, uiState.lastRefreshTime))
+            uiState.apiState.isRefreshing -> FlightRefreshingBanner()
+            uiState.apiState.refreshError != null -> FlightUpdateInfoError(uiState.apiState.refreshError)
+            else -> FlightUpdateInfoText(stringResource(R.string.common_last_update, uiState.apiState.lastRefreshTime))
         }
     }
 }

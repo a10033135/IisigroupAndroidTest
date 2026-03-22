@@ -12,7 +12,9 @@ import idv.fan.iisigroup.android.test.domain.model.Flight
 import idv.fan.iisigroup.android.test.domain.model.FlightStatus
 import idv.fan.iisigroup.android.test.domain.usecase.GetFlightsUseCase
 import idv.fan.iisigroup.android.test.network.ApiResult
+import idv.fan.iisigroup.android.test.ui.state.FlightApiState
 import idv.fan.iisigroup.android.test.ui.state.FlightUiState
+import idv.fan.iisigroup.android.test.ui.state.FlightUserState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -99,17 +101,18 @@ class FlightViewModel @Inject constructor(
         val current = _uiState.value as? FlightUiState.Success ?: return
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
-            _uiState.value = current.copy(isRefreshing = true, refreshError = null)
+            _uiState.value = current.copy(
+                apiState = current.apiState.copy(isRefreshing = true, refreshError = null),
+            )
             when (val result = getFlightsUseCase()) {
                 is ApiResult.Success -> {
                     allFlights = result.data
-                    _uiState.value = buildSuccessState(currentTime())
+                    _uiState.value = buildSuccessState(currentTime(), current)
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
                 is ApiResult.Error -> {
                     _uiState.value = current.copy(
-                        isRefreshing = false,
-                        refreshError = result.message,
+                        apiState = current.apiState.copy(isRefreshing = false, refreshError = result.message),
                     )
                     if (currentAutoSyncEnabled) startAutoRefresh()
                 }
@@ -121,8 +124,8 @@ class FlightViewModel @Inject constructor(
         currentFilters = if (filter in currentFilters) currentFilters - filter else currentFilters + filter
         val current = _uiState.value as? FlightUiState.Success ?: return
         _uiState.value = current.copy(
-            flights = applyFilters(),
-            selectedFilters = currentFilters,
+            apiState = current.apiState.copy(flights = applyFilters()),
+            userState = FlightUserState(selectedFilters = currentFilters),
         )
     }
 
@@ -142,16 +145,17 @@ class FlightViewModel @Inject constructor(
                 delay(currentAutoSyncIntervalMs)
                 val current = _uiState.value as? FlightUiState.Success ?: break
                 Timber.d("Auto-refreshing flights")
-                _uiState.value = current.copy(isRefreshing = true, refreshError = null)
+                _uiState.value = current.copy(
+                    apiState = current.apiState.copy(isRefreshing = true, refreshError = null),
+                )
                 when (val result = getFlightsUseCase()) {
                     is ApiResult.Success -> {
                         allFlights = result.data
-                        _uiState.value = buildSuccessState(currentTime())
+                        _uiState.value = buildSuccessState(currentTime(), current)
                     }
                     is ApiResult.Error -> {
                         _uiState.value = current.copy(
-                            isRefreshing = false,
-                            refreshError = result.message,
+                            apiState = current.apiState.copy(isRefreshing = false, refreshError = result.message),
                         )
                     }
                 }
@@ -159,13 +163,17 @@ class FlightViewModel @Inject constructor(
         }
     }
 
-    private fun buildSuccessState(refreshTime: String): FlightUiState.Success =
-        FlightUiState.Success(
+    private fun buildSuccessState(
+        refreshTime: String,
+        current: FlightUiState.Success? = null,
+    ): FlightUiState.Success = FlightUiState.Success(
+        apiState = FlightApiState(
             flights = applyFilters(),
-            lastRefreshTime = refreshTime,
             availableFilters = buildAvailableFilters(),
-            selectedFilters = currentFilters,
-        )
+            lastRefreshTime = refreshTime,
+        ),
+        userState = current?.userState ?: FlightUserState(),
+    )
 
     private fun buildAvailableFilters(): List<FlightFilterOption> {
         val regions = allFlights
