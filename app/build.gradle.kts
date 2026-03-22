@@ -15,7 +15,7 @@ val localProperties = Properties().apply {
     if (localPropertiesFile.exists()) load(localPropertiesFile.inputStream())
 }
 
-val EXCHANGE_RATE_API_KEY = localProperties.getProperty("EXCHANGE_RATE_API_KEY")
+val exchangeApiKey = localProperties.getProperty("EXCHANGE_RATE_API_KEY") ?: ""
 
 
 android {
@@ -36,7 +36,7 @@ android {
         debug {
             buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
             buildConfigField("String", "EXCHANGE_RATE_BASE_URL", "\"https://api.freecurrencyapi.com/v1/\"")
-            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${EXCHANGE_RATE_API_KEY}\"")
+            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${exchangeApiKey}\"")
 
         }
         release {
@@ -44,7 +44,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "FLIGHT_BASE_URL", "\"https://www.kia.gov.tw/\"")
             buildConfigField("String", "EXCHANGE_RATE_BASE_URL", "\"https://api.freecurrencyapi.com/v1/\"")
-            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${EXCHANGE_RATE_API_KEY}\"")
+            buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"${exchangeApiKey}\"")
 
         }
     }
